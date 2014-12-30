@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SSTV Encoder</string>
+    <string name="action_send_martin1">Send Martin 1</string>
+    <string name="action_send_martin2">Send Martin 2</string>
+    <string name="action_send_robot36">Send Robot 36</string>
+    <string name="action_send_robot72">Send Robot 72</string>
+    <string name="action_send_wrasse">Send Wrasse SC2-180</string>
+
+</resources>
