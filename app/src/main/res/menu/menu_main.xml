@@ -1,6 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
     <item
         android:id="@+id/action_send_martin1"
         android:orderInCategory="100"
@@ -10,6 +11,21 @@
         android:id="@+id/action_send_martin2"
         android:orderInCategory="100"
         android:title="@string/action_send_martin2"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_send_scottie1"
+        android:orderInCategory="100"
+        android:title="@string/action_send_scottie1"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_send_scottie2"
+        android:orderInCategory="100"
+        android:title="@string/action_send_scottie2"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_send_scottiedx"
+        android:orderInCategory="100"
+        android:title="@string/action_send_scottiedx"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_send_robot36"

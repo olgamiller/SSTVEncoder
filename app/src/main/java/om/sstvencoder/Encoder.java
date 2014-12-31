@@ -18,11 +18,18 @@ package om.sstvencoder;
 
 import android.graphics.Bitmap;
 
-import om.sstvencoder.Modes.MartinModes.*;
-import om.sstvencoder.Modes.*;
-
 import java.util.LinkedList;
 import java.util.List;
+
+import om.sstvencoder.Modes.MartinModes.Martin1;
+import om.sstvencoder.Modes.MartinModes.Martin2;
+import om.sstvencoder.Modes.Mode;
+import om.sstvencoder.Modes.Robot36;
+import om.sstvencoder.Modes.Robot72;
+import om.sstvencoder.Modes.ScottieModes.Scottie1;
+import om.sstvencoder.Modes.ScottieModes.Scottie2;
+import om.sstvencoder.Modes.ScottieModes.ScottieDX;
+import om.sstvencoder.Modes.Wrasse;
 
 public class Encoder {
     private final Thread mThread;
@@ -70,6 +77,18 @@ public class Encoder {
 
     public Bitmap sendMartin2(Bitmap bitmap) {
         return enqueue(new Martin2(bitmap));
+    }
+
+    public Bitmap sendScottie1(Bitmap bitmap) {
+        return enqueue(new Scottie1(bitmap));
+    }
+
+    public Bitmap sendScottie2(Bitmap bitmap) {
+        return enqueue(new Scottie2(bitmap));
+    }
+
+    public Bitmap sendScottieDX(Bitmap bitmap) {
+        return enqueue(new ScottieDX(bitmap));
     }
 
     public Bitmap sendRobot36(Bitmap bitmap) {

@@ -20,9 +20,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -85,6 +85,15 @@ public class MainActivity extends ActionBarActivity {
                 return true;
             case R.id.action_send_martin2:
                 mImageView.setImageBitmap(mEncoder.sendMartin2(mBitmap));
+                return true;
+            case R.id.action_send_scottie1:
+                mImageView.setImageBitmap(mEncoder.sendScottie1(mBitmap));
+                return true;
+            case R.id.action_send_scottie2:
+                mImageView.setImageBitmap(mEncoder.sendScottie2(mBitmap));
+                return true;
+            case R.id.action_send_scottiedx:
+                mImageView.setImageBitmap(mEncoder.sendScottieDX(mBitmap));
                 return true;
             case R.id.action_send_robot36:
                 mImageView.setImageBitmap(mEncoder.sendRobot36(mBitmap));
