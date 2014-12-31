@@ -47,7 +47,6 @@ public abstract class Martin extends Mode {
         mSeparatorFrequency = 1500.0;
     }
 
-    //Transmission time 114.3 seconds
     protected void writeEncodedLine(int y) {
         addSyncPulse();
         addSyncPorch();

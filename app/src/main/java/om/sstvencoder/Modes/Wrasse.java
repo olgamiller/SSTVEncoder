@@ -42,7 +42,6 @@ public class Wrasse extends Mode {
         mPorchFrequency = 1500.0;
     }
 
-    //Transmission time 182 seconds per line
     protected void writeEncodedLine(int y) {
         addSyncPulse();
         addPorch();

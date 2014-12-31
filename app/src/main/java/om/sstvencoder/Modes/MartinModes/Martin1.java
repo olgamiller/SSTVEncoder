@@ -18,7 +18,6 @@ package om.sstvencoder.Modes.MartinModes;
 
 import android.graphics.Bitmap;
 
-//Transmission time is 114.3 seconds (not including calibration header/VIS)
 public class Martin1 extends Martin {
     public Martin1(Bitmap bitmap){
         super(bitmap);
