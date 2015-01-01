@@ -19,7 +19,7 @@ package om.sstvencoder.Modes;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 
-import om.sstvencoder.Yuv;
+import om.sstvencoder.ImageFormats.Yuv;
 
 public class Robot72 extends Mode {
     private final Yuv mYuv;
@@ -42,7 +42,7 @@ public class Robot72 extends Mode {
 
     public Robot72(Bitmap bitmap) {
         mBitmap = scaleBitmap(bitmap, 320, 240);
-        mYuv = new Yuv(mBitmap, ImageFormat.YUY2);
+        mYuv = Yuv.createYuv(mBitmap, ImageFormat.YUY2);
         mVISCode = 12;
 
         mLumaScanSamples = convertMsToSamples(138.0);
