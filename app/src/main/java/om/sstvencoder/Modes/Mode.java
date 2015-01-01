@@ -45,7 +45,7 @@ public abstract class Mode {
         return mBitmap;
     }
 
-    public void init(){
+    public void init() {
         initAudio();
         mRunningIntegral = 0.0;
         mLine = 0;
@@ -63,7 +63,7 @@ public abstract class Mode {
         }
     }
 
-    public void finish(){
+    public void finish() {
         destroyAudio();
     }
 
@@ -139,7 +139,7 @@ public abstract class Mode {
     protected void setTone(double frequency) {
         mRunningIntegral += 2.0 * frequency * Math.PI / (double) mSampleRate;
         mRunningIntegral %= 2.0 * Math.PI;
-        mAudioBuffer[mBufferPos++] = (short) (Math.sin(mRunningIntegral) * 32768.0);
+        mAudioBuffer[mBufferPos++] = (short) (Math.sin(mRunningIntegral) * Short.MAX_VALUE);
     }
 
     protected void setColorTone(int color) {
