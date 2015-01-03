@@ -156,6 +156,12 @@ public abstract class Mode {
         mAudioTrack.write(mAudioBuffer, 0, mBufferPos);
     }
 
+    protected void drainBuffer() {
+        for (int i = 0; i < mAudioBuffer.length; ++i)
+            mAudioBuffer[i] = 0;
+        mAudioTrack.write(mAudioBuffer, 0, mAudioBuffer.length);
+    }
+
     private void initAudio() {
         mAudioBuffer = new short[(5 * mSampleRate) / 2]; // 2.5 seconds of buffer
         mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
@@ -166,6 +172,7 @@ public abstract class Mode {
     }
 
     private void destroyAudio() {
+        drainBuffer();
         mAudioTrack.stop();
         mAudioTrack.release();
         mAudioBuffer = null;
