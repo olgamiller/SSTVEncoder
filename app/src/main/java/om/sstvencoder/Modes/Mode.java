@@ -112,7 +112,7 @@ public abstract class Mode {
     }
 
     protected int convertMsToSamples(double durationMs) {
-        return (int) (durationMs * mSampleRate / 1e3);
+        return (int) Math.round(durationMs * mSampleRate / 1e3);
     }
 
     protected Bitmap scaleBitmap(Bitmap bmp, int ow, int oh) {
