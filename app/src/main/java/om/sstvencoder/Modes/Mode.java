@@ -157,7 +157,7 @@ public abstract class Mode {
     }
 
     private void initAudio() {
-        mAudioBuffer = new short[(3 * mSampleRate) / 2]; // 1.5 second of buffer
+        mAudioBuffer = new short[(5 * mSampleRate) / 2]; // 2.5 seconds of buffer
         mAudioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 mSampleRate, AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT, mAudioBuffer.length * 2,
