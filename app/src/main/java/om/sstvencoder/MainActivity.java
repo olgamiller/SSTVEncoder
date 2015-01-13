@@ -21,11 +21,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+
+import java.io.InputStream;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -58,7 +59,15 @@ public class MainActivity extends ActionBarActivity {
             Uri mUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (mUri != null) {
                 try {
-                    mBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mUri);
+                    InputStream stream = getContentResolver().openInputStream(mUri);
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeStream(stream, null, options);
+                    int scale = Math.max(1, Math.max(options.outWidth / 320, options.outHeight / 256));
+                    options.inSampleSize = Integer.highestOneBit(scale);
+                    options.inJustDecodeBounds = false;
+                    stream = getContentResolver().openInputStream(mUri);
+                    mBitmap =  BitmapFactory.decodeStream(stream, null, options);
                     mImageView.setImageBitmap(mBitmap);
                 } catch (Exception ignore) {
                 }
