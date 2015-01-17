@@ -29,7 +29,7 @@ public class Encoder {
     private final Thread mThread;
     private final List<Mode> mQueue;
     private boolean mQuit;
-    private Class mModeClass;
+    private Class<? extends Mode> mModeClass;
 
     public Encoder() {
         mQueue = new LinkedList<>();
@@ -99,10 +99,10 @@ public class Encoder {
         return setMode(Wrasse.class);
     }
 
-    private ModeSize setMode(Class modeClass) {
+    private ModeSize setMode(Class<? extends Mode> modeClass) {
         mModeClass = modeClass;
         if (mModeClass.isAnnotationPresent(ModeSize.class))
-            return (ModeSize) mModeClass.getAnnotation(ModeSize.class);
+            return mModeClass.getAnnotation(ModeSize.class);
         return null;
     }
 

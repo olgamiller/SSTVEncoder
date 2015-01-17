@@ -35,7 +35,7 @@ public abstract class Mode {
     private double mRunningIntegral;
     private int mBufferPos;
 
-    public static Mode Create(Class<Mode> modeClass, Bitmap bitmap) {
+    public static Mode Create(Class<? extends Mode> modeClass, Bitmap bitmap) {
         Mode mode = null;
 
         if (bitmap != null && modeClass.isAnnotationPresent(ModeSize.class)) {
