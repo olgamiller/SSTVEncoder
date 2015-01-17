@@ -36,8 +36,8 @@ public class CropView extends ImageView {
     private ModeSize mNativeSize;
     private Bitmap mBitmap;
 
-    public CropView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    public CropView(Context context, AttributeSet attrs) {
+        super(context, attrs);
     }
 
     public void setModeSize(ModeSize size) {
