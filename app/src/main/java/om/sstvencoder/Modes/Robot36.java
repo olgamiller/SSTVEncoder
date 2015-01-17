@@ -21,6 +21,7 @@ import android.graphics.ImageFormat;
 
 import om.sstvencoder.ImageFormats.Yuv;
 
+@ModeSize(getWidth = 320, getHeight = 240)
 public class Robot36 extends Mode {
     private final Yuv mYuv;
 
@@ -41,7 +42,8 @@ public class Robot36 extends Mode {
     private final double mOddSeparatorFrequency;
 
     public Robot36(Bitmap bitmap) {
-        mBitmap = scaleBitmap(bitmap, 320, 240);
+        super(bitmap);
+
         mYuv = Yuv.createYuv(mBitmap, ImageFormat.NV21);
         mVISCode = 8;
 

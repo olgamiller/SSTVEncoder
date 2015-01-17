@@ -17,13 +17,11 @@ limitations under the License.
 package om.sstvencoder.Modes;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+
+import java.lang.reflect.Constructor;
 
 public abstract class Mode {
     private final int mSampleRate;
@@ -37,12 +35,27 @@ public abstract class Mode {
     private double mRunningIntegral;
     private int mBufferPos;
 
-    protected Mode() {
-        mSampleRate = 44100;
+    public static Mode Create(Class<Mode> modeClass, Bitmap bitmap) {
+        Mode mode = null;
+
+        if (bitmap != null && modeClass.isAnnotationPresent(ModeSize.class)) {
+            ModeSize size = modeClass.getAnnotation(ModeSize.class);
+
+            if (bitmap.getWidth() == size.getWidth() && bitmap.getHeight() == size.getHeight()) {
+                try {
+                    Constructor constructor = modeClass.getConstructor(Bitmap.class);
+                    mode = (Mode) constructor.newInstance(bitmap);
+                } catch (Exception ignore) {
+                }
+            }
+        }
+
+        return mode;
     }
 
-    public Bitmap getBitmap() {
-        return mBitmap;
+    protected Mode(Bitmap bitmap) {
+        mSampleRate = 44100;
+        mBitmap = bitmap;
     }
 
     public void init() {
@@ -113,27 +126,6 @@ public abstract class Mode {
 
     protected int convertMsToSamples(double durationMs) {
         return (int) Math.round(durationMs * mSampleRate / 1e3);
-    }
-
-    protected Bitmap scaleBitmap(Bitmap bmp, int ow, int oh) {
-        Bitmap result = Bitmap.createBitmap(ow, oh, Bitmap.Config.ARGB_8888);
-        int iw = bmp.getWidth();
-        int ih = bmp.getHeight();
-        RectF rect;
-
-        if (iw * oh < ow * ih) {
-            rect = new RectF(0, 0, (iw * oh) / ih, oh);
-            rect.offsetTo((ow - (iw * oh) / ih) / 2, 0);
-        } else {
-            rect = new RectF(0, 0, ow, (ih * ow) / iw);
-            rect.offsetTo(0, (oh - (ih * ow) / iw) / 2);
-        }
-
-        Canvas canvas = new Canvas(result);
-        canvas.drawColor(Color.BLACK);
-        canvas.drawBitmap(bmp, null, rect, new Paint(Paint.FILTER_BITMAP_FLAG));
-
-        return result;
     }
 
     protected void setTone(double frequency) {

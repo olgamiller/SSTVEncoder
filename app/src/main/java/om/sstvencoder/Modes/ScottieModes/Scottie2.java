@@ -18,6 +18,9 @@ package om.sstvencoder.Modes.ScottieModes;
 
 import android.graphics.Bitmap;
 
+import om.sstvencoder.Modes.ModeSize;
+
+@ModeSize(getWidth = 320, getHeight = 256)
 public class Scottie2 extends Scottie {
     public Scottie2(Bitmap bitmap){
         super(bitmap);

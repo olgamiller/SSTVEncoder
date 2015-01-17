@@ -3,43 +3,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
     <item
-        android:id="@+id/action_send_martin1"
+        android:id="@+id/action_send"
+        android:icon="@android:drawable/ic_menu_send"
+        android:title="@string/action_send"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_martin1"
         android:orderInCategory="100"
-        android:title="@string/action_send_martin1"
+        android:title="@string/action_martin1"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_send_martin2"
+        android:id="@+id/action_martin2"
         android:orderInCategory="100"
-        android:title="@string/action_send_martin2"
+        android:title="@string/action_martin2"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_send_scottie1"
+        android:id="@+id/action_scottie1"
         android:orderInCategory="100"
-        android:title="@string/action_send_scottie1"
+        android:title="@string/action_scottie1"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_send_scottie2"
+        android:id="@+id/action_scottie2"
         android:orderInCategory="100"
-        android:title="@string/action_send_scottie2"
+        android:title="@string/action_scottie2"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_send_scottiedx"
+        android:id="@+id/action_scottiedx"
         android:orderInCategory="100"
-        android:title="@string/action_send_scottiedx"
+        android:title="@string/action_scottiedx"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_send_robot36"
+        android:id="@+id/action_robot36"
         android:orderInCategory="100"
-        android:title="@string/action_send_robot36"
+        android:title="@string/action_robot36"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_send_robot72"
+        android:id="@+id/action_robot72"
         android:orderInCategory="100"
-        android:title="@string/action_send_robot72"
+        android:title="@string/action_robot72"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_send_wrasse"
+        android:id="@+id/action_wrasse"
         android:orderInCategory="100"
-        android:title="@string/action_send_wrasse"
+        android:title="@string/action_wrasse"
         app:showAsAction="never" />
 </menu>

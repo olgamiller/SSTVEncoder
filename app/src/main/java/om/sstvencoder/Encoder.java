@@ -21,24 +21,20 @@ import android.graphics.Bitmap;
 import java.util.LinkedList;
 import java.util.List;
 
-import om.sstvencoder.Modes.MartinModes.Martin1;
-import om.sstvencoder.Modes.MartinModes.Martin2;
-import om.sstvencoder.Modes.Mode;
-import om.sstvencoder.Modes.Robot36;
-import om.sstvencoder.Modes.Robot72;
-import om.sstvencoder.Modes.ScottieModes.Scottie1;
-import om.sstvencoder.Modes.ScottieModes.Scottie2;
-import om.sstvencoder.Modes.ScottieModes.ScottieDX;
-import om.sstvencoder.Modes.Wrasse;
+import om.sstvencoder.Modes.MartinModes.*;
+import om.sstvencoder.Modes.*;
+import om.sstvencoder.Modes.ScottieModes.*;
 
 public class Encoder {
     private final Thread mThread;
     private final List<Mode> mQueue;
     private boolean mQuit;
+    private Class mModeClass;
 
     public Encoder() {
         mQueue = new LinkedList<>();
         mQuit = false;
+        mModeClass = Robot36.class;
 
         mThread = new Thread() {
             @Override
@@ -71,45 +67,56 @@ public class Encoder {
         mThread.start();
     }
 
-    public Bitmap sendMartin1(Bitmap bitmap) {
-        return enqueue(new Martin1(bitmap));
+    public ModeSize setMartin1() {
+        return setMode(Martin1.class);
     }
 
-    public Bitmap sendMartin2(Bitmap bitmap) {
-        return enqueue(new Martin2(bitmap));
+    public ModeSize setMartin2() {
+        return setMode(Martin2.class);
     }
 
-    public Bitmap sendScottie1(Bitmap bitmap) {
-        return enqueue(new Scottie1(bitmap));
+    public ModeSize setScottie1() {
+        return setMode(Scottie1.class);
     }
 
-    public Bitmap sendScottie2(Bitmap bitmap) {
-        return enqueue(new Scottie2(bitmap));
+    public ModeSize setScottie2() {
+        return setMode(Scottie2.class);
     }
 
-    public Bitmap sendScottieDX(Bitmap bitmap) {
-        return enqueue(new ScottieDX(bitmap));
+    public ModeSize setScottieDX() {
+        return setMode(ScottieDX.class);
     }
 
-    public Bitmap sendRobot36(Bitmap bitmap) {
-        return enqueue(new Robot36(bitmap));
+    public ModeSize setRobot36() {
+        return setMode(Robot36.class);
     }
 
-    public Bitmap sendRobot72(Bitmap bitmap) {
-        return enqueue(new Robot72(bitmap));
+    public ModeSize setRobot72() {
+        return setMode(Robot72.class);
     }
 
-    public Bitmap sendWrasse(Bitmap bitmap) {
-        return enqueue(new Wrasse(bitmap));
+    public ModeSize setWrasse() {
+        return setMode(Wrasse.class);
     }
 
-    private Bitmap enqueue(Mode mode) {
-        Bitmap nativeBitmap = mode.getBitmap();
+    private ModeSize setMode(Class modeClass) {
+        mModeClass = modeClass;
+        if (mModeClass.isAnnotationPresent(ModeSize.class))
+            return (ModeSize) mModeClass.getAnnotation(ModeSize.class);
+        return null;
+    }
+
+    public void send(Bitmap bitmap) {
+        Mode mode = Mode.Create(mModeClass, bitmap);
+        if (mode != null)
+            enqueue(mode);
+    }
+
+    private void enqueue(Mode mode) {
         synchronized (mThread) {
             mQueue.add(mode);
             mThread.notify();
         }
-        return nativeBitmap;
     }
 
     public void destroy() {

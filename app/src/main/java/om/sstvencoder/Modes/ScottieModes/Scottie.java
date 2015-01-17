@@ -35,7 +35,7 @@ public abstract class Scottie extends Mode {
     protected int mColorScanSamples;
 
     public Scottie(Bitmap bitmap) {
-        mBitmap = scaleBitmap(bitmap, 320, 256);
+        super(bitmap);
 
         mSyncPulseSamples = convertMsToSamples(9.0);
         mSyncPulseFrequency = 1200.0;

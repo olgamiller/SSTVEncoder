@@ -18,6 +18,9 @@ package om.sstvencoder.Modes.MartinModes;
 
 import android.graphics.Bitmap;
 
+import om.sstvencoder.Modes.ModeSize;
+
+@ModeSize(getWidth = 320, getHeight = 256)
 public class Martin1 extends Martin {
     public Martin1(Bitmap bitmap){
         super(bitmap);

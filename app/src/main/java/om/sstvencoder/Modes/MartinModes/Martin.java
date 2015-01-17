@@ -35,7 +35,7 @@ public abstract class Martin extends Mode {
     protected int mColorScanSamples;
 
     public Martin(Bitmap bitmap) {
-        mBitmap = scaleBitmap(bitmap, 320, 256);
+        super(bitmap);
 
         mSyncPulseSamples = convertMsToSamples(4.862);
         mSyncPulseFrequency = 1200.0;

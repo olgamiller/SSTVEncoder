@@ -14,19 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-package om.sstvencoder.Modes.ScottieModes;
+package om.sstvencoder.Modes;
 
-import android.graphics.Bitmap;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import om.sstvencoder.Modes.ModeSize;
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ModeSize {
+    int getWidth();
 
-@ModeSize(getWidth = 320, getHeight = 256)
-public class ScottieDX extends Scottie {
-    public ScottieDX(Bitmap bitmap) {
-        super(bitmap);
-        mVISCode = 76;
-
-        mColorScanDurationMs = 345.6;
-        mColorScanSamples = convertMsToSamples(mColorScanDurationMs);
-    }
+    int getHeight();
 }

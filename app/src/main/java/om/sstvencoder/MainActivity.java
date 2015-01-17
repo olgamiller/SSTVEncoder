@@ -17,32 +17,28 @@ limitations under the License.
 package om.sstvencoder;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-
-import java.io.InputStream;
 
 public class MainActivity extends ActionBarActivity {
 
-    private ImageView mImageView;
+    private CropView mCropView;
     private Encoder mEncoder;
-    private Bitmap mBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        mImageView = (ImageView) findViewById(R.id.imageView);
+        mCropView = (CropView) findViewById(R.id.cropView);
         mEncoder = new Encoder();
-
-        handleIntent(getIntent());
+        mCropView.setModeSize(mEncoder.setRobot36());
+        setTitle(R.string.action_robot36);
+        if (!handleIntent(getIntent()))
+            mCropView.setBitmapStream(getResources().openRawResource(R.raw.smpte_color_bars));
     }
 
     @Override
@@ -51,33 +47,20 @@ public class MainActivity extends ActionBarActivity {
         super.onNewIntent(intent);
     }
 
-    private void handleIntent(Intent intent) {
+    private boolean handleIntent(Intent intent) {
         String action = intent.getAction();
         String type = intent.getType();
-
         if (Intent.ACTION_SEND.equals(action) && type != null && type.startsWith("image/")) {
-            Uri mUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (mUri != null) {
+            Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if (uri != null) {
                 try {
-                    InputStream stream = getContentResolver().openInputStream(mUri);
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeStream(stream, null, options);
-                    int scale = Math.max(1, Math.max(options.outWidth / 320, options.outHeight / 256));
-                    options.inSampleSize = Integer.highestOneBit(scale);
-                    options.inJustDecodeBounds = false;
-                    stream = getContentResolver().openInputStream(mUri);
-                    mBitmap =  BitmapFactory.decodeStream(stream, null, options);
-                    mImageView.setImageBitmap(mBitmap);
+                    mCropView.setBitmapStream(getContentResolver().openInputStream(uri));
+                    return true;
                 } catch (Exception ignore) {
                 }
             }
         }
-
-        if (mBitmap == null) {
-            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.smpte_color_bars);
-            mImageView.setImageBitmap(mBitmap);
-        }
+        return false;
     }
 
     @Override
@@ -89,33 +72,48 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_send_martin1:
-                mImageView.setImageBitmap(mEncoder.sendMartin1(mBitmap));
+            case R.id.action_send:
+                send();
                 return true;
-            case R.id.action_send_martin2:
-                mImageView.setImageBitmap(mEncoder.sendMartin2(mBitmap));
+            case R.id.action_martin1:
+                mCropView.setModeSize(mEncoder.setMartin1());
+                setTitle(R.string.action_martin1);
                 return true;
-            case R.id.action_send_scottie1:
-                mImageView.setImageBitmap(mEncoder.sendScottie1(mBitmap));
+            case R.id.action_martin2:
+                mCropView.setModeSize(mEncoder.setMartin2());
+                setTitle(R.string.action_martin2);
                 return true;
-            case R.id.action_send_scottie2:
-                mImageView.setImageBitmap(mEncoder.sendScottie2(mBitmap));
+            case R.id.action_scottie1:
+                mCropView.setModeSize(mEncoder.setScottie1());
+                setTitle(R.string.action_scottie1);
                 return true;
-            case R.id.action_send_scottiedx:
-                mImageView.setImageBitmap(mEncoder.sendScottieDX(mBitmap));
+            case R.id.action_scottie2:
+                mCropView.setModeSize(mEncoder.setScottie2());
+                setTitle(R.string.action_scottie2);
                 return true;
-            case R.id.action_send_robot36:
-                mImageView.setImageBitmap(mEncoder.sendRobot36(mBitmap));
+            case R.id.action_scottiedx:
+                mCropView.setModeSize(mEncoder.setScottieDX());
+                setTitle(R.string.action_scottiedx);
                 return true;
-            case R.id.action_send_robot72:
-                mImageView.setImageBitmap(mEncoder.sendRobot72(mBitmap));
+            case R.id.action_robot36:
+                mCropView.setModeSize(mEncoder.setRobot36());
+                setTitle(R.string.action_robot36);
                 return true;
-            case R.id.action_send_wrasse:
-                mImageView.setImageBitmap(mEncoder.sendWrasse(mBitmap));
+            case R.id.action_robot72:
+                mCropView.setModeSize(mEncoder.setRobot72());
+                setTitle(R.string.action_robot72);
+                return true;
+            case R.id.action_wrasse:
+                mCropView.setModeSize(mEncoder.setWrasse());
+                setTitle(R.string.action_wrasse);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void send() {
+        mEncoder.send(mCropView.getBitmap());
     }
 
     @Override

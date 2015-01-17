@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 
 //WRASSE SC2-180
+@ModeSize(getWidth = 320, getHeight = 256)
 public class Wrasse extends Mode {
     private final int mColorScanSamples;
 
@@ -30,7 +31,8 @@ public class Wrasse extends Mode {
     private final double mPorchFrequency;
 
     public Wrasse(Bitmap bitmap) {
-        mBitmap = scaleBitmap(bitmap, 320, 256);
+        super(bitmap);
+
         mVISCode = 55;
 
         mColorScanSamples = convertMsToSamples(235.0);

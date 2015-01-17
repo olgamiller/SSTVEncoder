@@ -18,8 +18,11 @@ package om.sstvencoder.Modes.MartinModes;
 
 import android.graphics.Bitmap;
 
+import om.sstvencoder.Modes.ModeSize;
+
+@ModeSize(getWidth = 320, getHeight = 256)
 public class Martin2 extends Martin {
-    public Martin2(Bitmap bitmap){
+    public Martin2(Bitmap bitmap) {
         super(bitmap);
         mVISCode = 40;
 
