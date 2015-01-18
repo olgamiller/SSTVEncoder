@@ -39,7 +39,7 @@ import om.sstvencoder.Modes.ModeSize;
 
 public class CropView extends ImageView {
     private ModeSize mModeSize;
-    private Paint mPaint;
+    private Paint mPaint, mRectPaint;
     private RectF mInputRect;
     private BitmapRegionDecoder mRegionDecoder;
     private float mPreviousX;
@@ -57,11 +57,30 @@ public class CropView extends ImageView {
             rect.inset(dx, dy);
             if (rect.width() < 64.0f || rect.width() < 64.0f)
                 return true;
-            if (rect.width() > mRegionDecoder.getWidth() ||
-                    rect.height() > mRegionDecoder.getHeight())
-                mInputRect = new RectF(0.0f, 0.0f, mRegionDecoder.getWidth(), mRegionDecoder.getHeight());
-            else
-                mInputRect = rect;
+
+            int iw = mModeSize.getWidth();
+            int ih = mModeSize.getHeight();
+            int ow = mRegionDecoder.getWidth();
+            int oh = mRegionDecoder.getHeight();
+
+            if (rect.width() > ow && rect.height() > oh) {
+                mInputRect = new RectF(getAspectRatioScaledRect(iw, ih, ow, oh));
+                return true;
+            }
+            if (rect.width() > ow || rect.height() > oh) {
+                RectF tmp;
+                if (iw * oh < ow * ih)
+                    tmp = new RectF(0.0f, 0.0f, (iw * oh) / ih, oh);
+                else
+                    tmp = new RectF(0.0f, 0.0f, ow, (ih * ow) / iw);
+                if (rect.width() > ow)
+                    tmp.offset(0.0f, mInputRect.top);
+                if (rect.height() > oh)
+                    tmp.offset(mInputRect.left, 0.0f);
+                mInputRect = tmp;
+                return true;
+            }
+            mInputRect = rect;
             return true;
         }
     }
@@ -71,6 +90,8 @@ public class CropView extends ImageView {
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         mActivePointerId = MotionEvent.INVALID_POINTER_ID;
         mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
+        mRectPaint = new Paint();
+        mRectPaint.setStyle(Paint.Style.STROKE);
     }
 
     public void setModeSize(ModeSize size) {
@@ -81,7 +102,9 @@ public class CropView extends ImageView {
     public void setBitmapStream(InputStream stream) {
         try {
             mRegionDecoder = BitmapRegionDecoder.newInstance(stream, true);
-            mInputRect = new RectF(0.0f, 0.0f, mRegionDecoder.getWidth(), mRegionDecoder.getHeight());
+            mInputRect = new RectF(getAspectRatioScaledRect(
+                    mModeSize.getWidth(), mModeSize.getHeight(),
+                    mRegionDecoder.getWidth(), mRegionDecoder.getHeight()));
             invalidate();
         } catch (IOException ignore) {
         }
@@ -140,7 +163,20 @@ public class CropView extends ImageView {
         if (mRegionDecoder == null)
             return;
         Bitmap bitmap = mRegionDecoder.decodeRegion(getPixelRect(mInputRect), getBitmapOptions());
-        canvas.drawBitmap(bitmap, null, getAspectRatioScaledRect(mInputRect, getWidth(), getHeight()), mPaint);
+        canvas.drawBitmap(bitmap, null, getModeRect(), mPaint);
+        drawModeRect(canvas);
+    }
+
+    private void drawModeRect(Canvas canvas) {
+        Rect rect = getModeRect();
+        mRectPaint.setColor(Color.BLUE);
+        canvas.drawRect(rect, mRectPaint);
+        rect.inset(-1, -1);
+        mRectPaint.setColor(Color.GREEN);
+        canvas.drawRect(rect, mRectPaint);
+        rect.inset(-1, -1);
+        mRectPaint.setColor(Color.RED);
+        canvas.drawRect(rect, mRectPaint);
     }
 
     private Rect getPixelRect(RectF rect) {
@@ -173,10 +209,6 @@ public class CropView extends ImageView {
         return result;
     }
 
-    private Rect getAspectRatioScaledRect(RectF in, int ow, int oh) {
-        return getAspectRatioScaledRect((int) in.width(), (int) in.height(), ow, oh);
-    }
-
     private Rect getAspectRatioScaledRect(int iw, int ih, int ow, int oh) {
         Rect rect;
         if (iw * oh < ow * ih) {
@@ -185,6 +217,24 @@ public class CropView extends ImageView {
         } else {
             rect = new Rect(0, 0, ow, (ih * ow) / iw);
             rect.offsetTo((ow - (iw * ow) / iw) / 2, (oh - (ih * ow) / iw) / 2);
+        }
+        return rect;
+    }
+
+    private Rect getModeRect() {
+        Rect rect;
+        int iw = mModeSize.getWidth();
+        int ih = mModeSize.getHeight();
+
+        int ow = (8 * getWidth()) / 10;
+        int oh = (8 * getHeight()) / 10;
+
+        if (iw * oh < ow * ih) {
+            rect = new Rect(0, 0, (iw * oh) / ih, oh);
+            rect.offsetTo((getWidth() - (iw * oh) / ih) / 2, (getHeight() - (ih * oh) / ih) / 2);
+        } else {
+            rect = new Rect(0, 0, ow, (ih * ow) / iw);
+            rect.offsetTo((getWidth() - (iw * ow) / iw) / 2, (getHeight() - (ih * ow) / iw) / 2);
         }
         return rect;
     }
