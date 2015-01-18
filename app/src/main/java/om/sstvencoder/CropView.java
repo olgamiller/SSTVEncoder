@@ -26,6 +26,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
+import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -43,6 +44,7 @@ public class CropView extends ImageView {
     private BitmapRegionDecoder mRegionDecoder;
     private float mPreviousX;
     private float mPreviousY;
+    private int mActivePointerId;
     private ScaleGestureDetector mScaleDetector;
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
@@ -67,6 +69,7 @@ public class CropView extends ImageView {
     public CropView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        mActivePointerId = MotionEvent.INVALID_POINTER_ID;
         mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
     }
 
@@ -87,11 +90,19 @@ public class CropView extends ImageView {
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent e) {
         mScaleDetector.onTouchEvent(e);
-        float x = e.getX();
-        float y = e.getY();
 
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_MOVE:
+        switch (MotionEventCompat.getActionMasked(e)) {
+            case MotionEvent.ACTION_DOWN: {
+                int pointerIndex = MotionEventCompat.getActionIndex(e);
+                mPreviousX = MotionEventCompat.getX(e, pointerIndex);
+                mPreviousY = MotionEventCompat.getY(e, pointerIndex);
+                mActivePointerId = MotionEventCompat.getPointerId(e, 0);
+                break;
+            }
+            case MotionEvent.ACTION_MOVE: {
+                int pointerIndex = MotionEventCompat.findPointerIndex(e, mActivePointerId);
+                float x = MotionEventCompat.getX(e, pointerIndex);
+                float y = MotionEventCompat.getY(e, pointerIndex);
                 float dx = (mInputRect.width() * (mPreviousX - x)) / getWidth();
                 float dy = (mInputRect.height() * (mPreviousY - y)) / getHeight();
                 dx = Math.max(0.0f, mInputRect.left + dx) - mInputRect.left;
@@ -99,10 +110,28 @@ public class CropView extends ImageView {
                 dx = Math.min(mRegionDecoder.getWidth(), mInputRect.right + dx) - mInputRect.right;
                 dy = Math.min(mRegionDecoder.getHeight(), mInputRect.bottom + dy) - mInputRect.bottom;
                 mInputRect.offset(dx, dy);
+                mPreviousX = x;
+                mPreviousY = y;
                 invalidate();
+                break;
+            }
+            case MotionEvent.ACTION_POINTER_UP: {
+                int pointerIndex = MotionEventCompat.getActionIndex(e);
+                int pointerId = MotionEventCompat.getPointerId(e, pointerIndex);
+                if (pointerId == mActivePointerId) {
+                    int newPointerIndex = pointerIndex == 0 ? 1 : 0;
+                    mPreviousX = MotionEventCompat.getX(e, newPointerIndex);
+                    mPreviousY = MotionEventCompat.getY(e, newPointerIndex);
+                    mActivePointerId = MotionEventCompat.getPointerId(e, newPointerIndex);
+                }
+                break;
+            }
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL: {
+                mActivePointerId = MotionEvent.INVALID_POINTER_ID;
+                break;
+            }
         }
-        mPreviousX = x;
-        mPreviousY = y;
         return true;
     }
 
