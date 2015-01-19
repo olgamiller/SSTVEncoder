@@ -171,6 +171,7 @@ public class CropView extends ImageView {
             return;
         Bitmap bitmap = mRegionDecoder.decodeRegion(getPixelRect(mInputRect), getBitmapOptions());
         canvas.drawBitmap(bitmap, null, getModeRect(), mPaint);
+        bitmap.recycle();
         drawModeRect(canvas);
     }
 
@@ -212,6 +213,7 @@ public class CropView extends ImageView {
         Canvas canvas = new Canvas(result);
         canvas.drawColor(Color.BLACK);
         canvas.drawBitmap(bitmap, null, rect, mPaint);
+        bitmap.recycle();
 
         return result;
     }
