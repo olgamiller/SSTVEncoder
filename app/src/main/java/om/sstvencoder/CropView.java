@@ -28,6 +28,7 @@ import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
@@ -169,10 +170,64 @@ public class CropView extends ImageView {
     protected void onDraw(@NonNull Canvas canvas) {
         if (mRegionDecoder == null)
             return;
-        Bitmap bitmap = mRegionDecoder.decodeRegion(getPixelRect(mInputRect), getBitmapOptions());
-        canvas.drawBitmap(bitmap, null, getModeRect(), mPaint);
+        Pair<Rect, Rect> pair = getCanvasAndImageRect();
+        Bitmap bitmap = mRegionDecoder.decodeRegion(pair.first, getBitmapOptions());
+        canvas.drawBitmap(bitmap, null, pair.second, mPaint);
         bitmap.recycle();
         drawModeRect(canvas);
+    }
+
+    private Pair<Rect, Rect> getCanvasAndImageRect() {
+        RectF mode = new RectF(getModeRect());
+        RectF input = mInputRect;
+        RectF canvas, image;
+        float iw = mode.width();
+        float ih = mode.height();
+        float ow = getWidth();
+        float oh = getHeight();
+        if (iw * oh > ow * ih) {
+            canvas = new RectF(0.0f, 0.0f, (iw * oh) / ih, oh);
+            image = new RectF(0.0f, 0.0f, (input.width() * oh) / ih, (input.height() * oh) / ih);
+            canvas.offset((ow - (iw * oh) / ih) / 2.0f, 0.0f);
+        } else {
+            canvas = new RectF(0.0f, 0.0f, ow, (ih * ow) / iw);
+            image = new RectF(0.0f, 0.0f, (input.width() * ow) / iw, (input.height() * ow) / iw);
+            canvas.offset(0.0f, (oh - (ih * ow) / iw) / 2.0f);
+        }
+        image.offset(input.left - (image.width() - input.width()) / 2.0f, input.top - (image.height() - input.height()) / 2.0f);
+        if (canvas.left < 0.0f) {
+            image.left -= canvas.left * image.width() / canvas.width();
+            canvas.left = 0.0f;
+        }
+        if (canvas.top < 0.0f) {
+            image.top -= canvas.top * image.height() / canvas.height();
+            canvas.top = 0.0f;
+        }
+        if (canvas.right > getWidth()) {
+            image.right -= (canvas.right - getWidth()) * image.width() / canvas.width();
+            canvas.right = getWidth();
+        }
+        if (canvas.bottom > getHeight()) {
+            image.bottom -= (canvas.bottom - getHeight()) * image.height() / canvas.height();
+            canvas.bottom = getHeight();
+        }
+        if (image.left < 0.0f) {
+            canvas.left -= image.left * canvas.width() / image.width();
+            image.left = 0.0f;
+        }
+        if (image.top < 0.0f) {
+            canvas.top -= image.top * canvas.height() / image.height();
+            image.top = 0.0f;
+        }
+        if (image.right > mRegionDecoder.getWidth()) {
+            canvas.right -= (image.right - mRegionDecoder.getWidth()) * canvas.width() / image.width();
+            image.right = mRegionDecoder.getWidth();
+        }
+        if (image.bottom > mRegionDecoder.getHeight()) {
+            canvas.bottom -= (image.bottom - mRegionDecoder.getHeight()) * canvas.height() / image.height();
+            image.bottom = mRegionDecoder.getHeight();
+        }
+        return new Pair<>(getPixelRect(image), getIntRect(canvas));
     }
 
     private void drawModeRect(Canvas canvas) {
@@ -185,6 +240,10 @@ public class CropView extends ImageView {
         rect.inset(-1, -1);
         mRectPaint.setColor(Color.RED);
         canvas.drawRect(rect, mRectPaint);
+    }
+
+    private Rect getIntRect(RectF rect) {
+        return new Rect((int) rect.left, (int) rect.top, (int) rect.right, (int) rect.bottom);
     }
 
     private Rect getPixelRect(RectF rect) {
@@ -222,10 +281,10 @@ public class CropView extends ImageView {
         Rect rect;
         if (iw * oh < ow * ih) {
             rect = new Rect(0, 0, (iw * oh) / ih, oh);
-            rect.offsetTo((ow - (iw * oh) / ih) / 2, (oh - (ih * oh) / ih) / 2);
+            rect.offset((ow - (iw * oh) / ih) / 2, 0);
         } else {
             rect = new Rect(0, 0, ow, (ih * ow) / iw);
-            rect.offsetTo((ow - (iw * ow) / iw) / 2, (oh - (ih * ow) / iw) / 2);
+            rect.offset(0, (oh - (ih * ow) / iw) / 2);
         }
         return rect;
     }
@@ -240,10 +299,10 @@ public class CropView extends ImageView {
 
         if (iw * oh < ow * ih) {
             rect = new Rect(0, 0, (iw * oh) / ih, oh);
-            rect.offsetTo((getWidth() - (iw * oh) / ih) / 2, (getHeight() - (ih * oh) / ih) / 2);
+            rect.offset((getWidth() - (iw * oh) / ih) / 2, (getHeight() - oh) / 2);
         } else {
             rect = new Rect(0, 0, ow, (ih * ow) / iw);
-            rect.offsetTo((getWidth() - (iw * ow) / iw) / 2, (getHeight() - (ih * ow) / iw) / 2);
+            rect.offset((getWidth() - ow) / 2, (getHeight() - (ih * ow) / iw) / 2);
         }
         return rect;
     }
