@@ -64,7 +64,7 @@ public class CropView extends ImageView {
             int oh = mRegionDecoder.getHeight();
 
             if (rect.width() > ow && rect.height() > oh) {
-                mInputRect = new RectF(getAspectRatioScaledRect(iw, ih, ow, oh));
+                resetInputRect();
                 return true;
             }
             if (rect.width() > ow || rect.height() > oh) {
@@ -96,15 +96,22 @@ public class CropView extends ImageView {
 
     public void setModeSize(ModeSize size) {
         mModeSize = size;
-        invalidate();
+        if (mRegionDecoder != null) {
+            resetInputRect();
+            invalidate();
+        }
+    }
+
+    private void resetInputRect() {
+        mInputRect = new RectF(getAspectRatioScaledRect(
+                mModeSize.getWidth(), mModeSize.getHeight(),
+                mRegionDecoder.getWidth(), mRegionDecoder.getHeight()));
     }
 
     public void setBitmapStream(InputStream stream) {
         try {
             mRegionDecoder = BitmapRegionDecoder.newInstance(stream, true);
-            mInputRect = new RectF(getAspectRatioScaledRect(
-                    mModeSize.getWidth(), mModeSize.getHeight(),
-                    mRegionDecoder.getWidth(), mRegionDecoder.getHeight()));
+            resetInputRect();
             invalidate();
         } catch (IOException ignore) {
         }
