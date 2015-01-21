@@ -100,6 +100,8 @@ public class CropView extends ImageView {
 
     public void setBitmapStream(InputStream stream) {
         try {
+            if (mRegionDecoder != null)
+                mRegionDecoder.recycle();
             mRegionDecoder = BitmapRegionDecoder.newInstance(stream, true);
             resetInputRect();
             invalidate();
