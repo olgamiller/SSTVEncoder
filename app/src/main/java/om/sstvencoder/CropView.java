@@ -33,6 +33,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -43,10 +44,13 @@ public class CropView extends ImageView {
     private Paint mPaint, mRectPaint, mBorderPaint;
     private RectF mInputRect;
     private BitmapRegionDecoder mRegionDecoder;
-    private float mPreviousX;
-    private float mPreviousY;
+    private int mImageWidth, mImageHeight;
+    private float mPreviousX, mPreviousY;
     private int mActivePointerId;
     private ScaleGestureDetector mScaleDetector;
+    private Bitmap mBitmap;
+    private boolean mSmallImage;
+    private boolean mImageOK;
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
@@ -56,8 +60,8 @@ public class CropView extends ImageView {
             float dx = 0.5f * mInputRect.width() * (1.0f - scale);
             float dy = 0.5f * mInputRect.height() * (1.0f - scale);
             rect.inset(dx, dy);
-            int max = Math.max(mRegionDecoder.getWidth(), mRegionDecoder.getHeight());
-            if (Math.min(rect.width(), rect.height()) < 64.0f ||
+            int max = Math.max(mImageWidth, mImageHeight);
+            if (Math.min(rect.width(), rect.height()) < 4.0f ||
                     Math.max(rect.width(), rect.height()) > 2.0f * max)
                 return true;
             mInputRect = rect;
@@ -74,11 +78,13 @@ public class CropView extends ImageView {
         mRectPaint.setStyle(Paint.Style.STROKE);
         mBorderPaint = new Paint();
         mBorderPaint.setColor(Color.BLACK);
+        mSmallImage = false;
+        mImageOK = false;
     }
 
     public void setModeSize(ModeSize size) {
         mModeSize = size;
-        if (mRegionDecoder != null) {
+        if (mImageOK) {
             resetInputRect();
             invalidate();
         }
@@ -87,8 +93,8 @@ public class CropView extends ImageView {
     private void resetInputRect() {
         float iw = mModeSize.getWidth();
         float ih = mModeSize.getHeight();
-        float ow = mRegionDecoder.getWidth();
-        float oh = mRegionDecoder.getHeight();
+        float ow = mImageWidth;
+        float oh = mImageHeight;
         if (iw * oh > ow * ih) {
             mInputRect = new RectF(0.0f, 0.0f, (iw * oh) / ih, oh);
             mInputRect.offset((ow - (iw * oh) / ih) / 2.0f, 0.0f);
@@ -99,10 +105,35 @@ public class CropView extends ImageView {
     }
 
     public void setBitmapStream(InputStream stream) {
+        mImageOK = false;
         try {
-            if (mRegionDecoder != null)
+            if (mRegionDecoder != null) {
                 mRegionDecoder.recycle();
-            mRegionDecoder = BitmapRegionDecoder.newInstance(stream, true);
+                mRegionDecoder = null;
+            }
+            if (mBitmap != null) {
+                mBitmap.recycle();
+                mBitmap = null;
+            }
+            int bufferBytes = 128 * 1024;
+            if (!stream.markSupported())
+                stream = new BufferedInputStream(stream, bufferBytes);
+            stream.mark(bufferBytes);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(new BufferedInputStream(stream), null, options);
+            stream.reset();
+            mImageWidth = options.outWidth;
+            mImageHeight = options.outHeight;
+
+            if (mImageWidth * mImageHeight < 1024 * 1024) {
+                mBitmap = BitmapFactory.decodeStream(stream);
+                mSmallImage = true;
+            } else {
+                mRegionDecoder = BitmapRegionDecoder.newInstance(stream, true);
+                mSmallImage = false;
+            }
+            mImageOK = true;
             resetInputRect();
             invalidate();
         } catch (IOException ignore) {
@@ -129,8 +160,8 @@ public class CropView extends ImageView {
                 float dy = (mInputRect.height() * (mPreviousY - y)) / getHeight();
                 dx = Math.max(mInputRect.width() * 0.1f, mInputRect.right + dx) - mInputRect.right;
                 dy = Math.max(mInputRect.height() * 0.1f, mInputRect.bottom + dy) - mInputRect.bottom;
-                dx = Math.min(mRegionDecoder.getWidth() - mInputRect.width() * 0.1f, mInputRect.left + dx) - mInputRect.left;
-                dy = Math.min(mRegionDecoder.getHeight() - mInputRect.height() * 0.1f, mInputRect.top + dy) - mInputRect.top;
+                dx = Math.min(mImageWidth - mInputRect.width() * 0.1f, mInputRect.left + dx) - mInputRect.left;
+                dy = Math.min(mImageHeight - mInputRect.height() * 0.1f, mInputRect.top + dy) - mInputRect.top;
                 mInputRect.offset(dx, dy);
                 mPreviousX = x;
                 mPreviousY = y;
@@ -159,13 +190,12 @@ public class CropView extends ImageView {
 
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
-        if (mRegionDecoder == null)
+        if (!mImageOK)
             return;
+
         Pair<Rect, Rect> pair = getVisibleCanvasAndImageRect(getWidth(), getHeight());
-        Bitmap bitmap = mRegionDecoder.decodeRegion(pair.first, getBitmapOptions());
         canvas.drawRect(getModeRect(), mBorderPaint);
-        canvas.drawBitmap(bitmap, null, pair.second, mPaint);
-        bitmap.recycle();
+        drawBitmap(canvas, pair);
         drawModeRect(canvas);
     }
 
@@ -189,15 +219,15 @@ public class CropView extends ImageView {
             canvas.top -= image.top * canvas.height() / image.height();
             image.top = 0.0f;
         }
-        if (image.right > mRegionDecoder.getWidth()) {
-            canvas.right -= (image.right - mRegionDecoder.getWidth()) * canvas.width() / image.width();
-            image.right = mRegionDecoder.getWidth();
+        if (image.right > mImageWidth) {
+            canvas.right -= (image.right - mImageWidth) * canvas.width() / image.width();
+            image.right = mImageWidth;
         }
-        if (image.bottom > mRegionDecoder.getHeight()) {
-            canvas.bottom -= (image.bottom - mRegionDecoder.getHeight()) * canvas.height() / image.height();
-            image.bottom = mRegionDecoder.getHeight();
+        if (image.bottom > mImageHeight) {
+            canvas.bottom -= (image.bottom - mImageHeight) * canvas.height() / image.height();
+            image.bottom = mImageHeight;
         }
-        return new Pair<>(getPixelRect(image), getIntRect(canvas));
+        return new Pair<>(getIntRect(image), getIntRect(canvas));
     }
 
     private void drawModeRect(Canvas canvas) {
@@ -216,10 +246,6 @@ public class CropView extends ImageView {
         return new Rect((int) rect.left, (int) rect.top, (int) rect.right, (int) rect.bottom);
     }
 
-    private Rect getPixelRect(RectF rect) {
-        return new Rect((int) rect.left, (int) rect.top, (int) rect.right - 1, (int) rect.bottom - 1);
-    }
-
     private BitmapFactory.Options getBitmapOptions() {
         BitmapFactory.Options options = new BitmapFactory.Options();
         int sx = Math.round(mInputRect.width() / mModeSize.getWidth());
@@ -230,14 +256,27 @@ public class CropView extends ImageView {
     }
 
     public Bitmap getBitmap() {
-        Pair<Rect, Rect> pair = getValidCanvasAndImageRect(new RectF(mInputRect), mModeSize.getWidth(), mModeSize.getHeight());
-        Bitmap bitmap = mRegionDecoder.decodeRegion(pair.first, getBitmapOptions());
+        if (!mImageOK)
+            return null;
+
         Bitmap result = Bitmap.createBitmap(mModeSize.getWidth(), mModeSize.getHeight(), Bitmap.Config.ARGB_8888);
+        Pair<Rect, Rect> pair = getValidCanvasAndImageRect(new RectF(mInputRect), mModeSize.getWidth(), mModeSize.getHeight());
+
         Canvas canvas = new Canvas(result);
         canvas.drawColor(Color.BLACK);
-        canvas.drawBitmap(bitmap, null, pair.second, mPaint);
-        bitmap.recycle();
+        drawBitmap(canvas, pair);
+
         return result;
+    }
+
+    private void drawBitmap(Canvas canvas, Pair<Rect, Rect> pair) {
+        if (mSmallImage) {
+            canvas.drawBitmap(mBitmap, pair.first, pair.second, mPaint);
+        } else {
+            Bitmap bitmap = mRegionDecoder.decodeRegion(pair.first, getBitmapOptions());
+            canvas.drawBitmap(bitmap, null, pair.second, mPaint);
+            bitmap.recycle();
+        }
     }
 
     private Rect getModeRect() {
