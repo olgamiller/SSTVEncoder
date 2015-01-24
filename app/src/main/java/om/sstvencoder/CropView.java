@@ -156,8 +156,9 @@ public class CropView extends ImageView {
                 int pointerIndex = MotionEventCompat.findPointerIndex(e, mActivePointerId);
                 float x = MotionEventCompat.getX(e, pointerIndex);
                 float y = MotionEventCompat.getY(e, pointerIndex);
-                float dx = (mInputRect.width() * (mPreviousX - x)) / getWidth();
-                float dy = (mInputRect.height() * (mPreviousY - y)) / getHeight();
+                Rect mode = getModeRect();
+                float dx = (mInputRect.width() * (mPreviousX - x)) / mode.width();
+                float dy = (mInputRect.height() * (mPreviousY - y)) / mode.height();
                 dx = Math.max(mInputRect.width() * 0.1f, mInputRect.right + dx) - mInputRect.right;
                 dy = Math.max(mInputRect.height() * 0.1f, mInputRect.bottom + dy) - mInputRect.bottom;
                 dx = Math.min(mImageWidth - mInputRect.width() * 0.1f, mInputRect.left + dx) - mInputRect.left;
@@ -209,7 +210,8 @@ public class CropView extends ImageView {
         return getValidCanvasAndImageRect(image, width, height);
     }
 
-    private Pair<Rect, Rect> getValidCanvasAndImageRect(RectF image, int width, int height) {
+    private Pair<Rect, Rect> getValidCanvasAndImageRect(RectF input, int width, int height) {
+        RectF image = new RectF(input);
         RectF canvas = new RectF(0.0f, 0.0f, width, height);
         if (image.left < 0.0f) {
             canvas.left -= image.left * canvas.width() / image.width();
@@ -260,7 +262,7 @@ public class CropView extends ImageView {
             return null;
 
         Bitmap result = Bitmap.createBitmap(mModeSize.getWidth(), mModeSize.getHeight(), Bitmap.Config.ARGB_8888);
-        Pair<Rect, Rect> pair = getValidCanvasAndImageRect(new RectF(mInputRect), mModeSize.getWidth(), mModeSize.getHeight());
+        Pair<Rect, Rect> pair = getValidCanvasAndImageRect(mInputRect, mModeSize.getWidth(), mModeSize.getHeight());
 
         Canvas canvas = new Canvas(result);
         canvas.drawColor(Color.BLACK);
