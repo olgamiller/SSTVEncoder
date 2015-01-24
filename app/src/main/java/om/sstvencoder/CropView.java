@@ -43,6 +43,7 @@ public class CropView extends ImageView {
     private ModeSize mModeSize;
     private Paint mPaint, mRectPaint, mBorderPaint;
     private RectF mInputRect;
+    private Rect mOutputRect;
     private BitmapRegionDecoder mRegionDecoder;
     private int mImageWidth, mImageHeight;
     private float mPreviousX, mPreviousY;
@@ -84,6 +85,7 @@ public class CropView extends ImageView {
 
     public void setModeSize(ModeSize size) {
         mModeSize = size;
+        mOutputRect = getModeRect(getWidth(), getHeight());
         if (mImageOK) {
             resetInputRect();
             invalidate();
@@ -156,9 +158,8 @@ public class CropView extends ImageView {
                 int pointerIndex = MotionEventCompat.findPointerIndex(e, mActivePointerId);
                 float x = MotionEventCompat.getX(e, pointerIndex);
                 float y = MotionEventCompat.getY(e, pointerIndex);
-                Rect mode = getModeRect();
-                float dx = (mInputRect.width() * (mPreviousX - x)) / mode.width();
-                float dy = (mInputRect.height() * (mPreviousY - y)) / mode.height();
+                float dx = (mInputRect.width() * (mPreviousX - x)) / mOutputRect.width();
+                float dy = (mInputRect.height() * (mPreviousY - y)) / mOutputRect.height();
                 dx = Math.max(mInputRect.width() * 0.1f, mInputRect.right + dx) - mInputRect.right;
                 dy = Math.max(mInputRect.height() * 0.1f, mInputRect.bottom + dy) - mInputRect.bottom;
                 dx = Math.min(mImageWidth - mInputRect.width() * 0.1f, mInputRect.left + dx) - mInputRect.left;
@@ -190,23 +191,28 @@ public class CropView extends ImageView {
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        mOutputRect = getModeRect(w, h);
+    }
+
+    @Override
     protected void onDraw(@NonNull Canvas canvas) {
         if (!mImageOK)
             return;
 
         Pair<Rect, Rect> pair = getVisibleCanvasAndImageRect(getWidth(), getHeight());
-        canvas.drawRect(getModeRect(), mBorderPaint);
+        canvas.drawRect(mOutputRect, mBorderPaint);
         drawBitmap(canvas, pair);
         drawModeRect(canvas);
     }
 
     private Pair<Rect, Rect> getVisibleCanvasAndImageRect(int width, int height) {
-        RectF mode = new RectF(getModeRect());
         RectF image = new RectF(mInputRect);
-        image.left -= mode.left * mInputRect.width() / mode.width();
-        image.top -= mode.top * mInputRect.height() / mode.height();
-        image.right -= (mode.right - getWidth()) * mInputRect.width() / mode.width();
-        image.bottom -= (mode.bottom - getHeight()) * mInputRect.height() / mode.height();
+        image.left -= mOutputRect.left * mInputRect.width() / mOutputRect.width();
+        image.top -= mOutputRect.top * mInputRect.height() / mOutputRect.height();
+        image.right -= (mOutputRect.right - getWidth()) * mInputRect.width() / mOutputRect.width();
+        image.bottom -= (mOutputRect.bottom - getHeight()) * mInputRect.height() / mOutputRect.height();
         return getValidCanvasAndImageRect(image, width, height);
     }
 
@@ -233,15 +239,16 @@ public class CropView extends ImageView {
     }
 
     private void drawModeRect(Canvas canvas) {
-        Rect rect = getModeRect();
         mRectPaint.setColor(Color.BLUE);
-        canvas.drawRect(rect, mRectPaint);
-        rect.inset(-1, -1);
+        canvas.drawRect(mOutputRect, mRectPaint);
         mRectPaint.setColor(Color.GREEN);
-        canvas.drawRect(rect, mRectPaint);
-        rect.inset(-1, -1);
+        drawRectInset(canvas, mOutputRect, -1);
         mRectPaint.setColor(Color.RED);
-        canvas.drawRect(rect, mRectPaint);
+        drawRectInset(canvas, mOutputRect, -2);
+    }
+
+    private void drawRectInset(Canvas canvas, Rect rect, int inset) {
+        canvas.drawRect(rect.left + inset, rect.top + inset, rect.right - inset, rect.bottom - inset, mRectPaint);
     }
 
     private Rect getIntRect(RectF rect) {
@@ -281,20 +288,20 @@ public class CropView extends ImageView {
         }
     }
 
-    private Rect getModeRect() {
+    private Rect getModeRect(int w, int h) {
         Rect rect;
         int iw = mModeSize.getWidth();
         int ih = mModeSize.getHeight();
 
-        int ow = (8 * getWidth()) / 10;
-        int oh = (8 * getHeight()) / 10;
+        int ow = (9 * w) / 10;
+        int oh = (9 * h) / 10;
 
         if (iw * oh < ow * ih) {
             rect = new Rect(0, 0, (iw * oh) / ih, oh);
-            rect.offset((getWidth() - (iw * oh) / ih) / 2, (getHeight() - oh) / 2);
+            rect.offset((w - (iw * oh) / ih) / 2, (h - oh) / 2);
         } else {
             rect = new Rect(0, 0, ow, (ih * ow) / iw);
-            rect.offset((getWidth() - ow) / 2, (getHeight() - (ih * ow) / iw) / 2);
+            rect.offset((w - ow) / 2, (h - (ih * ow) / iw) / 2);
         }
         return rect;
     }
