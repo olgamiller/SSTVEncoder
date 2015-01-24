@@ -56,16 +56,14 @@ public class CropView extends ImageView {
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            float scale = 1.0f / detector.getScaleFactor();
-            RectF rect = new RectF(mInputRect);
-            float dx = 0.5f * mInputRect.width() * (1.0f - scale);
-            float dy = 0.5f * mInputRect.height() * (1.0f - scale);
-            rect.inset(dx, dy);
-            int max = Math.max(mImageWidth, mImageHeight);
-            if (Math.min(rect.width(), rect.height()) < 4.0f ||
-                    Math.max(rect.width(), rect.height()) > 2.0f * max)
-                return true;
-            mInputRect = rect;
+            float scale = detector.getScaleFactor();
+            float newW = mInputRect.width() / scale;
+            float newH = mInputRect.height() / scale;
+            float dx = 0.5f * (mInputRect.width() - newW);
+            float dy = 0.5f * (mInputRect.height() - newH);
+            float max = 2.0f * Math.max(mImageWidth, mImageHeight);
+            if (Math.min(newW, newH) >= 4.0f && Math.max(newW, newH) <= max)
+                mInputRect.inset(dx, dy);
             return true;
         }
     }
