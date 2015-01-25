@@ -16,9 +16,12 @@ limitations under the License.
 
 package om.sstvencoder;
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,13 +57,29 @@ public class MainActivity extends ActionBarActivity {
             Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (uri != null) {
                 try {
-                    mCropView.setBitmapStream(getContentResolver().openInputStream(uri));
+                    ContentResolver resolver = getContentResolver();
+                    mCropView.setBitmapStream(resolver.openInputStream(uri));
+                    mCropView.rotateImage(getOrientation(resolver, uri));
                     return true;
                 } catch (Exception ignore) {
                 }
             }
         }
         return false;
+    }
+
+    public static int getOrientation(ContentResolver resolver, Uri uri) {
+        int orientation = 0;
+        Cursor cursor = resolver.query(uri,
+                new String[]{MediaStore.Images.ImageColumns.ORIENTATION},
+                null, null, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst())
+                orientation = cursor.getInt(0);
+            cursor.close();
+        }
+        return orientation;
     }
 
     @Override
@@ -74,6 +93,9 @@ public class MainActivity extends ActionBarActivity {
         switch (item.getItemId()) {
             case R.id.action_send:
                 send();
+                return true;
+            case R.id.action_rotate:
+                mCropView.rotateImage(90);
                 return true;
             case R.id.action_martin1:
                 mCropView.setModeSize(mEncoder.setMartin1());

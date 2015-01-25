@@ -52,6 +52,7 @@ public class CropView extends ImageView {
     private boolean mSmallImage;
     private boolean mImageOK;
     private final Rect mCanvasDrawRect, mImageDrawRect;
+    private int mOrientation;
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
@@ -109,8 +110,23 @@ public class CropView extends ImageView {
         }
     }
 
+    public void rotateImage(int orientation) {
+        mOrientation += orientation;
+        mOrientation %= 360;
+        if (orientation == 90 || orientation == 270) {
+            int tmp = mImageWidth;
+            mImageWidth = mImageHeight;
+            mImageHeight = tmp;
+        }
+        if (mImageOK) {
+            resetInputRect();
+            invalidate();
+        }
+    }
+
     public void setBitmapStream(InputStream stream) {
         mImageOK = false;
+        mOrientation = 0;
         try {
             if (mRegionDecoder != null) {
                 mRegionDecoder.recycle();
@@ -280,6 +296,18 @@ public class CropView extends ImageView {
     }
 
     private void drawBitmap(Canvas canvas) {
+        int w = mImageWidth;
+        int h = mImageHeight;
+        for (int i = 0; i < mOrientation / 90; ++i) {
+            int tmp = w;
+            w = h;
+            h = tmp;
+            mImageDrawRect.set(mImageDrawRect.top, h - mImageDrawRect.left, mImageDrawRect.bottom, h - mImageDrawRect.right);
+            mCanvasDrawRect.set(mCanvasDrawRect.top, -mCanvasDrawRect.right, mCanvasDrawRect.bottom, -mCanvasDrawRect.left);
+        }
+        mImageDrawRect.sort();
+        canvas.save();
+        canvas.rotate(mOrientation);
         if (mSmallImage) {
             canvas.drawBitmap(mBitmap, mImageDrawRect, mCanvasDrawRect, mPaint);
         } else {
@@ -287,6 +315,7 @@ public class CropView extends ImageView {
             canvas.drawBitmap(bitmap, null, mCanvasDrawRect, mPaint);
             bitmap.recycle();
         }
+        canvas.restore();
     }
 
     private Rect getModeRect(int w, int h) {
