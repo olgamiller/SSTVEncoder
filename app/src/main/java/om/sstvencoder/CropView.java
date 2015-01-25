@@ -228,10 +228,10 @@ public class CropView extends ImageView {
     }
 
     private void maximizeImageToCanvasRect() {
-        mImageDrawRect.left = (int) (mInputRect.left - mOutputRect.left * mInputRect.width() / mOutputRect.width());
-        mImageDrawRect.top = (int) (mInputRect.top - mOutputRect.top * mInputRect.height() / mOutputRect.height());
-        mImageDrawRect.right = (int) (mInputRect.right - (mOutputRect.right - getWidth()) * mInputRect.width() / mOutputRect.width());
-        mImageDrawRect.bottom = (int) (mInputRect.bottom - (mOutputRect.bottom - getHeight()) * mInputRect.height() / mOutputRect.height());
+        mImageDrawRect.left = Math.round(mInputRect.left - mOutputRect.left * mInputRect.width() / mOutputRect.width());
+        mImageDrawRect.top = Math.round(mInputRect.top - mOutputRect.top * mInputRect.height() / mOutputRect.height());
+        mImageDrawRect.right = Math.round(mInputRect.right - (mOutputRect.right - getWidth()) * mInputRect.width() / mOutputRect.width());
+        mImageDrawRect.bottom = Math.round(mInputRect.bottom - (mOutputRect.bottom - getHeight()) * mInputRect.height() / mOutputRect.height());
     }
 
     private void adjustCanvasAndImageRect(int width, int height) {
@@ -268,7 +268,7 @@ public class CropView extends ImageView {
     }
 
     private Rect getIntRect(RectF rect) {
-        return new Rect((int) rect.left, (int) rect.top, (int) rect.right, (int) rect.bottom);
+        return new Rect(Math.round(rect.left), Math.round(rect.top), Math.round(rect.right), Math.round(rect.bottom));
     }
 
     private BitmapFactory.Options getBitmapOptions() {
