@@ -48,11 +48,14 @@ public class CropView extends ImageView {
     private float mPreviousX, mPreviousY;
     private int mActivePointerId;
     private ScaleGestureDetector mScaleDetector;
-    private Bitmap mBitmap;
+    private Bitmap mCacheBitmap;
     private boolean mSmallImage;
     private boolean mImageOK;
     private final Rect mCanvasDrawRect, mImageDrawRect;
     private int mOrientation;
+    private Rect mCacheRect;
+    private int mCacheSampleSize;
+    private final BitmapFactory.Options mBitmapOptions;
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
@@ -74,6 +77,8 @@ public class CropView extends ImageView {
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         mActivePointerId = MotionEvent.INVALID_POINTER_ID;
 
+        mBitmapOptions = new BitmapFactory.Options();
+
         mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
         mRectPaint = new Paint();
         mRectPaint.setStyle(Paint.Style.STROKE);
@@ -82,6 +87,7 @@ public class CropView extends ImageView {
 
         mCanvasDrawRect = new Rect();
         mImageDrawRect = new Rect();
+        mCacheRect = new Rect();
 
         mSmallImage = false;
         mImageOK = false;
@@ -132,9 +138,9 @@ public class CropView extends ImageView {
                 mRegionDecoder.recycle();
                 mRegionDecoder = null;
             }
-            if (mBitmap != null) {
-                mBitmap.recycle();
-                mBitmap = null;
+            if (mCacheBitmap != null) {
+                mCacheBitmap.recycle();
+                mCacheBitmap = null;
             }
             int bufferBytes = 128 * 1024;
             if (!stream.markSupported())
@@ -148,10 +154,11 @@ public class CropView extends ImageView {
             mImageHeight = options.outHeight;
 
             if (mImageWidth * mImageHeight < 1024 * 1024) {
-                mBitmap = BitmapFactory.decodeStream(stream);
+                mCacheBitmap = BitmapFactory.decodeStream(stream);
                 mSmallImage = true;
             } else {
                 mRegionDecoder = BitmapRegionDecoder.newInstance(stream, true);
+                mCacheRect.setEmpty();
                 mSmallImage = false;
             }
             mImageOK = true;
@@ -271,13 +278,11 @@ public class CropView extends ImageView {
         return new Rect(Math.round(rect.left), Math.round(rect.top), Math.round(rect.right), Math.round(rect.bottom));
     }
 
-    private BitmapFactory.Options getBitmapOptions() {
-        BitmapFactory.Options options = new BitmapFactory.Options();
+    private int getSampleSize() {
         int sx = Math.round(mInputRect.width() / mModeSize.getWidth());
         int sy = Math.round(mInputRect.height() / mModeSize.getHeight());
         int scale = Math.max(1, Math.max(sx, sy));
-        options.inSampleSize = Integer.highestOneBit(scale);
-        return options;
+        return Integer.highestOneBit(scale);
     }
 
     public Bitmap getBitmap() {
@@ -308,13 +313,32 @@ public class CropView extends ImageView {
         mImageDrawRect.sort();
         canvas.save();
         canvas.rotate(mOrientation);
-        if (mSmallImage) {
-            canvas.drawBitmap(mBitmap, mImageDrawRect, mCanvasDrawRect, mPaint);
-        } else {
-            Bitmap bitmap = mRegionDecoder.decodeRegion(mImageDrawRect, getBitmapOptions());
-            canvas.drawBitmap(bitmap, null, mCanvasDrawRect, mPaint);
-            bitmap.recycle();
+        if (!mSmallImage) {
+            int sampleSize = getSampleSize();
+            if (sampleSize != mCacheSampleSize || !mCacheRect.contains(mImageDrawRect)) {
+                if (mCacheBitmap != null)
+                    mCacheBitmap.recycle();
+                int cacheWidth = mImageDrawRect.width();
+                int cacheHeight = mImageDrawRect.height();
+                while (cacheWidth * cacheHeight < (sampleSize * 1024 * sampleSize * 1024)) {
+                    cacheWidth += mImageDrawRect.width();
+                    cacheHeight += mImageDrawRect.height();
+                }
+                mCacheRect.set(
+                        Math.max(0, mImageDrawRect.centerX() - cacheWidth / 2),
+                        Math.max(0, mImageDrawRect.centerY() - cacheHeight / 2),
+                        Math.min(mRegionDecoder.getWidth(), mImageDrawRect.centerX() + cacheWidth / 2),
+                        Math.min(mRegionDecoder.getHeight(), mImageDrawRect.centerY() + cacheHeight / 2));
+                mBitmapOptions.inSampleSize = mCacheSampleSize = sampleSize;
+                mCacheBitmap = mRegionDecoder.decodeRegion(mCacheRect, mBitmapOptions);
+            }
+            mImageDrawRect.offset(-mCacheRect.left, -mCacheRect.top);
+            mImageDrawRect.left /= mCacheSampleSize;
+            mImageDrawRect.top /= mCacheSampleSize;
+            mImageDrawRect.right /= mCacheSampleSize;
+            mImageDrawRect.bottom /= mCacheSampleSize;
         }
+        canvas.drawBitmap(mCacheBitmap, mImageDrawRect, mCanvasDrawRect, mPaint);
         canvas.restore();
     }
 
