@@ -315,7 +315,7 @@ public class CropView extends ImageView {
         canvas.rotate(mOrientation);
         if (!mSmallImage) {
             int sampleSize = getSampleSize();
-            if (sampleSize != mCacheSampleSize || !mCacheRect.contains(mImageDrawRect)) {
+            if (sampleSize < mCacheSampleSize || !mCacheRect.contains(mImageDrawRect)) {
                 if (mCacheBitmap != null)
                     mCacheBitmap.recycle();
                 int cacheWidth = mImageDrawRect.width();
@@ -325,10 +325,10 @@ public class CropView extends ImageView {
                     cacheHeight += mImageDrawRect.height();
                 }
                 mCacheRect.set(
-                        Math.max(0, mImageDrawRect.centerX() - cacheWidth / 2),
-                        Math.max(0, mImageDrawRect.centerY() - cacheHeight / 2),
-                        Math.min(mRegionDecoder.getWidth(), mImageDrawRect.centerX() + cacheWidth / 2),
-                        Math.min(mRegionDecoder.getHeight(), mImageDrawRect.centerY() + cacheHeight / 2));
+                        Math.max(0, ~(sampleSize - 1) & (mImageDrawRect.centerX() - cacheWidth / 2)),
+                        Math.max(0, ~(sampleSize - 1) & (mImageDrawRect.centerY() - cacheHeight / 2)),
+                        Math.min(mRegionDecoder.getWidth(), ~(sampleSize - 1) & (mImageDrawRect.centerX() + cacheWidth / 2 + sampleSize - 1)),
+                        Math.min(mRegionDecoder.getHeight(), ~(sampleSize - 1) & (mImageDrawRect.centerY() + cacheHeight / 2 + sampleSize - 1)));
                 mBitmapOptions.inSampleSize = mCacheSampleSize = sampleSize;
                 mCacheBitmap = mRegionDecoder.decodeRegion(mCacheRect, mBitmapOptions);
             }
