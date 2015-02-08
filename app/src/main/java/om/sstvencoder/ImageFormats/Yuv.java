@@ -18,7 +18,6 @@ package om.sstvencoder.ImageFormats;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.ImageFormat;
 import android.graphics.YuvImage;
 
 public abstract class Yuv {
@@ -38,14 +37,16 @@ public abstract class Yuv {
 
     public static Yuv createYuv(Bitmap bitmap, int format) {
         switch (format) {
-            case ImageFormat.YV12:
+            case YuvImageFormat.YV12:
                 return new YV12(bitmap, format);
-            case ImageFormat.NV21:
+            case YuvImageFormat.NV21:
                 return new NV21(bitmap, format);
-            case ImageFormat.YUY2:
+            case YuvImageFormat.YUY2:
                 return new YUY2(bitmap, format);
+            case YuvImageFormat.YUV440P:
+                return new YUV440P(bitmap, format);
             default:
-                throw new IllegalArgumentException("Only support ImageFormat.YV12, ImageFormat.NV21 and ImageFormat.YUY2");
+                throw new IllegalArgumentException("Only support YV12, NV21, YUY2 and YUV440P");
         }
     }
 

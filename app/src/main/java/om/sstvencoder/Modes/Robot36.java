@@ -17,9 +17,9 @@ limitations under the License.
 package om.sstvencoder.Modes;
 
 import android.graphics.Bitmap;
-import android.graphics.ImageFormat;
 
 import om.sstvencoder.ImageFormats.Yuv;
+import om.sstvencoder.ImageFormats.YuvImageFormat;
 
 @ModeSize(getWidth = 320, getHeight = 240)
 public class Robot36 extends Mode {
@@ -44,7 +44,7 @@ public class Robot36 extends Mode {
     public Robot36(Bitmap bitmap) {
         super(bitmap);
 
-        mYuv = Yuv.createYuv(mBitmap, ImageFormat.NV21);
+        mYuv = Yuv.createYuv(mBitmap, YuvImageFormat.NV21);
         mVISCode = 8;
 
         mLumaScanSamples = convertMsToSamples(88.0);
