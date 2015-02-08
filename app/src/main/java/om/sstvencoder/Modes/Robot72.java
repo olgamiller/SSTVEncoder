@@ -64,16 +64,16 @@ public class Robot72 extends Mode {
         mSecondSeparatorFrequency = 2300.0;
     }
 
-    protected void writeEncodedLine(int y) {
+    protected void writeEncodedLine() {
         addSyncPulse();
         addSyncPorch();
-        addYScan(y);
+        addYScan(mLine);
         addSeparator(mFirstSeparatorFrequency);
         addPorch();
-        addVScan(y);
+        addVScan(mLine);
         addSeparator(mSecondSeparatorFrequency);
         addPorch();
-        addUScan(y);
+        addUScan(mLine);
     }
 
     private void addSyncPulse() {

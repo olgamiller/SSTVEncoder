@@ -46,14 +46,13 @@ public abstract class PD extends Mode {
         mPorchFrequency = 1500.0;
     }
 
-    protected void writeEncodedLine(int y) {
+    protected void writeEncodedLine() {
         addSyncPulse();
         addPorch();
-        addYScan(y);
-        addVScan(y);
-        addUScan(y);
-        addYScan(y + 1);
-        ++mLine;
+        addYScan(mLine);
+        addVScan(mLine);
+        addUScan(mLine);
+        addYScan(++mLine);
     }
 
     private void addSyncPulse() {

@@ -47,17 +47,17 @@ public abstract class Scottie extends Mode {
         mSeparatorFrequency = 1500.0;
     }
 
-    protected void writeEncodedLine(int y) {
-        if (y == 0)
+    protected void writeEncodedLine() {
+        if (mLine == 0)
             addSyncPulse();
 
         addSeparator();
-        addGreenScan(y);
+        addGreenScan(mLine);
         addSeparator();
-        addBlueScan(y);
+        addBlueScan(mLine);
         addSyncPulse();
         addSyncPorch();
-        addRedScan(y);
+        addRedScan(mLine);
     }
 
     private void addSyncPulse() {

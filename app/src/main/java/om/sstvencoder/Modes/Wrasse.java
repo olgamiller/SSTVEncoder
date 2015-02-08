@@ -44,12 +44,12 @@ public class Wrasse extends Mode {
         mPorchFrequency = 1500.0;
     }
 
-    protected void writeEncodedLine(int y) {
+    protected void writeEncodedLine() {
         addSyncPulse();
         addPorch();
-        addRedScan(y);
-        addGreenScan(y);
-        addBlueScan(y);
+        addRedScan(mLine);
+        addGreenScan(mLine);
+        addBlueScan(mLine);
     }
 
     private void addSyncPulse() {

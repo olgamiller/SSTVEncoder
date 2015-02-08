@@ -64,19 +64,19 @@ public class Robot36 extends Mode {
         mOddSeparatorFrequency = 2300.0;
     }
 
-    protected void writeEncodedLine(int y) {
+    protected void writeEncodedLine() {
         addSyncPulse();
         addSyncPorch();
-        addYScan(y);
+        addYScan(mLine);
 
-        if (y % 2 == 0) {
+        if (mLine % 2 == 0) {
             addSeparator(mEvenSeparatorFrequency);
             addPorch();
-            addVScan(y);
+            addVScan(mLine);
         } else {
             addSeparator(mOddSeparatorFrequency);
             addPorch();
-            addUScan(y);
+            addUScan(mLine);
         }
     }
 

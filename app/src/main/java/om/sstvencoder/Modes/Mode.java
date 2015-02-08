@@ -68,7 +68,8 @@ public abstract class Mode {
     public boolean process() {
         if (mLine < mBitmap.getHeight()) {
             resetBuffer();
-            writeEncodedLine(mLine++);
+            writeEncodedLine();
+            ++mLine;
             playBuffer();
             return true;
         } else {
@@ -80,7 +81,7 @@ public abstract class Mode {
         destroyAudio();
     }
 
-    protected abstract void writeEncodedLine(int y);
+    protected abstract void writeEncodedLine();
 
     private void sendCalibrationHeader() {
         int leaderToneSamples = convertMsToSamples(300.0);

@@ -47,14 +47,14 @@ public abstract class Martin extends Mode {
         mSeparatorFrequency = 1500.0;
     }
 
-    protected void writeEncodedLine(int y) {
+    protected void writeEncodedLine() {
         addSyncPulse();
         addSyncPorch();
-        addGreenScan(y);
+        addGreenScan(mLine);
         addSeparator();
-        addBlueScan(y);
+        addBlueScan(mLine);
         addSeparator();
-        addRedScan(y);
+        addRedScan(mLine);
         addSeparator();
     }
 
