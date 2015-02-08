@@ -33,9 +33,39 @@
         android:title="@string/action_pd_modes">
         <menu>
             <item
+                android:id="@+id/action_pd50"
+                android:orderInCategory="100"
+                android:title="@string/action_pd50"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_pd90"
+                android:orderInCategory="100"
+                android:title="@string/action_pd90"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_pd120"
+                android:orderInCategory="100"
+                android:title="@string/action_pd120"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_pd160"
+                android:orderInCategory="100"
+                android:title="@string/action_pd160"
+                app:showAsAction="never" />
+            <item
                 android:id="@+id/action_pd180"
                 android:orderInCategory="100"
                 android:title="@string/action_pd180"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_pd240"
+                android:orderInCategory="100"
+                android:title="@string/action_pd240"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_pd290"
+                android:orderInCategory="100"
+                android:title="@string/action_pd290"
                 app:showAsAction="never" />
         </menu>
     </item>

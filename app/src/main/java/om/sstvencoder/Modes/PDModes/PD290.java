@@ -20,13 +20,13 @@ import android.graphics.Bitmap;
 
 import om.sstvencoder.Modes.ModeSize;
 
-@ModeSize(getWidth = 640, getHeight = 496)
-public class PD180 extends PD {
-    public PD180(Bitmap bitmap) {
+@ModeSize(getWidth = 800, getHeight = 616)
+public class PD290 extends PD {
+    public PD290(Bitmap bitmap) {
         super(bitmap);
-        mVISCode = 96;
+        mVISCode = 94;
 
-        mColorScanDurationMs = 183.04;
+        mColorScanDurationMs = 228.8;
         mColorScanSamples = convertMsToSamples(mColorScanDurationMs);
     }
 }

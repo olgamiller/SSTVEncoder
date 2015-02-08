@@ -105,9 +105,33 @@ public class MainActivity extends ActionBarActivity {
                 mCropView.setModeSize(mEncoder.setMartin2());
                 setTitle(R.string.action_martin2);
                 return true;
+            case R.id.action_pd50:
+                mCropView.setModeSize(mEncoder.setPD50());
+                setTitle(R.string.action_pd50);
+                return true;
+            case R.id.action_pd90:
+                mCropView.setModeSize(mEncoder.setPD90());
+                setTitle(R.string.action_pd90);
+                return true;
+            case R.id.action_pd120:
+                mCropView.setModeSize(mEncoder.setPD120());
+                setTitle(R.string.action_pd120);
+                return true;
+            case R.id.action_pd160:
+                mCropView.setModeSize(mEncoder.setPD160());
+                setTitle(R.string.action_pd160);
+                return true;
             case R.id.action_pd180:
                 mCropView.setModeSize(mEncoder.setPD180());
                 setTitle(R.string.action_pd180);
+                return true;
+            case R.id.action_pd240:
+                mCropView.setModeSize(mEncoder.setPD240());
+                setTitle(R.string.action_pd240);
+                return true;
+            case R.id.action_pd290:
+                mCropView.setModeSize(mEncoder.setPD290());
+                setTitle(R.string.action_pd290);
                 return true;
             case R.id.action_scottie1:
                 mCropView.setModeSize(mEncoder.setScottie1());

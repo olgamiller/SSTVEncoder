@@ -76,8 +76,32 @@ public class Encoder {
         return setMode(Martin2.class);
     }
 
+    public ModeSize setPD50() {
+        return setMode(PD50.class);
+    }
+
+    public ModeSize setPD90() {
+        return setMode(PD90.class);
+    }
+
+    public ModeSize setPD120() {
+        return setMode(PD120.class);
+    }
+
+    public ModeSize setPD160() {
+        return setMode(PD160.class);
+    }
+
     public ModeSize setPD180() {
         return setMode(PD180.class);
+    }
+
+    public ModeSize setPD240() {
+        return setMode(PD240.class);
+    }
+
+    public ModeSize setPD290() {
+        return setMode(PD290.class);
     }
 
     public ModeSize setScottie1() {

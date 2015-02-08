@@ -6,7 +6,13 @@
     <string name="action_rotate">Rotate</string>
     <string name="action_martin1">Martin 1</string>
     <string name="action_martin2">Martin 2</string>
+    <string name="action_pd50">PD 50</string>
+    <string name="action_pd90">PD 90</string>
+    <string name="action_pd120">PD 120</string>
+    <string name="action_pd160">PD 160</string>
     <string name="action_pd180">PD 180</string>
+    <string name="action_pd240">PD 240</string>
+    <string name="action_pd290">PD 290</string>
     <string name="action_scottie1">Scottie 1</string>
     <string name="action_scottie2">Scottie 2</string>
     <string name="action_scottiedx">Scottie DX</string>
