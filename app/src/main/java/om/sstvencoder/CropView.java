@@ -26,10 +26,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
-import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
 
 import java.io.BufferedInputStream;
@@ -45,9 +42,6 @@ public class CropView extends ImageView {
     private Rect mOutputRect;
     private BitmapRegionDecoder mRegionDecoder;
     private int mImageWidth, mImageHeight;
-    private float mPreviousX, mPreviousY;
-    private int mActivePointerId;
-    private ScaleGestureDetector mScaleDetector;
     private Bitmap mCacheBitmap;
     private boolean mSmallImage;
     private boolean mImageOK;
@@ -57,26 +51,8 @@ public class CropView extends ImageView {
     private int mCacheSampleSize;
     private final BitmapFactory.Options mBitmapOptions;
 
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            float scale = detector.getScaleFactor();
-            float newW = mInputRect.width() / scale;
-            float newH = mInputRect.height() / scale;
-            float dx = 0.5f * (mInputRect.width() - newW);
-            float dy = 0.5f * (mInputRect.height() - newH);
-            float max = 2.0f * Math.max(mImageWidth, mImageHeight);
-            if (Math.min(newW, newH) >= 4.0f && Math.max(newW, newH) <= max)
-                mInputRect.inset(dx, dy);
-            return true;
-        }
-    }
-
     public CropView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-        mActivePointerId = MotionEvent.INVALID_POINTER_ID;
-
         mBitmapOptions = new BitmapFactory.Options();
 
         mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
@@ -168,52 +144,27 @@ public class CropView extends ImageView {
         }
     }
 
-    @Override
-    public boolean onTouchEvent(@NonNull MotionEvent e) {
-        mScaleDetector.onTouchEvent(e);
-
-        switch (MotionEventCompat.getActionMasked(e)) {
-            case MotionEvent.ACTION_DOWN: {
-                int pointerIndex = MotionEventCompat.getActionIndex(e);
-                mPreviousX = MotionEventCompat.getX(e, pointerIndex);
-                mPreviousY = MotionEventCompat.getY(e, pointerIndex);
-                mActivePointerId = MotionEventCompat.getPointerId(e, 0);
-                break;
-            }
-            case MotionEvent.ACTION_MOVE: {
-                int pointerIndex = MotionEventCompat.findPointerIndex(e, mActivePointerId);
-                float x = MotionEventCompat.getX(e, pointerIndex);
-                float y = MotionEventCompat.getY(e, pointerIndex);
-                float dx = (mInputRect.width() * (mPreviousX - x)) / mOutputRect.width();
-                float dy = (mInputRect.height() * (mPreviousY - y)) / mOutputRect.height();
-                dx = Math.max(mInputRect.width() * 0.1f, mInputRect.right + dx) - mInputRect.right;
-                dy = Math.max(mInputRect.height() * 0.1f, mInputRect.bottom + dy) - mInputRect.bottom;
-                dx = Math.min(mImageWidth - mInputRect.width() * 0.1f, mInputRect.left + dx) - mInputRect.left;
-                dy = Math.min(mImageHeight - mInputRect.height() * 0.1f, mInputRect.top + dy) - mInputRect.top;
-                mInputRect.offset(dx, dy);
-                mPreviousX = x;
-                mPreviousY = y;
-                invalidate();
-                break;
-            }
-            case MotionEvent.ACTION_POINTER_UP: {
-                int pointerIndex = MotionEventCompat.getActionIndex(e);
-                int pointerId = MotionEventCompat.getPointerId(e, pointerIndex);
-                if (pointerId == mActivePointerId) {
-                    int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-                    mPreviousX = MotionEventCompat.getX(e, newPointerIndex);
-                    mPreviousY = MotionEventCompat.getY(e, newPointerIndex);
-                    mActivePointerId = MotionEventCompat.getPointerId(e, newPointerIndex);
-                }
-                break;
-            }
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL: {
-                mActivePointerId = MotionEvent.INVALID_POINTER_ID;
-                break;
-            }
+    public void scaleImage(float scaleFactor) {
+        float newW = mInputRect.width() / scaleFactor;
+        float newH = mInputRect.height() / scaleFactor;
+        float dx = 0.5f * (mInputRect.width() - newW);
+        float dy = 0.5f * (mInputRect.height() - newH);
+        float max = 2.0f * Math.max(mImageWidth, mImageHeight);
+        if (Math.min(newW, newH) >= 4.0f && Math.max(newW, newH) <= max) {
+            mInputRect.inset(dx, dy);
+            invalidate();
         }
-        return true;
+    }
+
+    public void moveImage(float distanceX, float distanceY) {
+        float dx = (mInputRect.width() * distanceX) / mOutputRect.width();
+        float dy = (mInputRect.height() * distanceY) / mOutputRect.height();
+        dx = Math.max(mInputRect.width() * 0.1f, mInputRect.right + dx) - mInputRect.right;
+        dy = Math.max(mInputRect.height() * 0.1f, mInputRect.bottom + dy) - mInputRect.bottom;
+        dx = Math.min(mImageWidth - mInputRect.width() * 0.1f, mInputRect.left + dx) - mInputRect.left;
+        dy = Math.min(mImageHeight - mInputRect.height() * 0.1f, mInputRect.top + dy) - mInputRect.top;
+        mInputRect.offset(dx, dy);
+        invalidate();
     }
 
     @Override
