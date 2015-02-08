@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">SSTV Encoder</string>
+    <string name="action_send">Send</string>
+    <string name="action_rotate">Rotate</string>
     <string name="action_martin1">Martin 1</string>
     <string name="action_martin2">Martin 2</string>
     <string name="action_pd180">PD 180</string>
@@ -11,7 +13,10 @@
     <string name="action_robot36">Robot 36</string>
     <string name="action_robot72">Robot 72</string>
     <string name="action_wrasse">Wrasse SC2 180</string>
-    <string name="action_send">Send</string>
-    <string name="action_rotate">Rotate</string>
+    <string name="action_martin_modes">Martin Modes</string>
+    <string name="action_pd_modes">PD Modes</string>
+    <string name="action_scottie_modes">Scottie Modes</string>
+    <string name="action_robot_modes">Robot Modes</string>
+    <string name="action_wrasse_modes">Wrasse Modes</string>
 
 </resources>

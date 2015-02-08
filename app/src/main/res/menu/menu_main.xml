@@ -13,48 +13,79 @@
         android:title="@string/action_rotate"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_martin1"
-        android:orderInCategory="100"
-        android:title="@string/action_martin1"
-        app:showAsAction="never" />
+        android:id="@+id/action_martin_modes"
+        android:title="@string/action_martin_modes">
+        <menu>
+            <item
+                android:id="@+id/action_martin1"
+                android:orderInCategory="100"
+                android:title="@string/action_martin1"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_martin2"
+                android:orderInCategory="100"
+                android:title="@string/action_martin2"
+                app:showAsAction="never" />
+        </menu>
+    </item>
     <item
-        android:id="@+id/action_martin2"
-        android:orderInCategory="100"
-        android:title="@string/action_martin2"
-        app:showAsAction="never" />
+        android:id="@+id/action_pd_modes"
+        android:title="@string/action_pd_modes">
+        <menu>
+            <item
+                android:id="@+id/action_pd180"
+                android:orderInCategory="100"
+                android:title="@string/action_pd180"
+                app:showAsAction="never" />
+        </menu>
+    </item>
     <item
-        android:id="@+id/action_pd180"
-        android:orderInCategory="100"
-        android:title="@string/action_pd180"
-        app:showAsAction="never" />
+        android:id="@+id/action_scottie_modes"
+        android:title="@string/action_scottie_modes">
+        <menu>
+            <item
+                android:id="@+id/action_scottie1"
+                android:orderInCategory="100"
+                android:title="@string/action_scottie1"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_scottie2"
+                android:orderInCategory="100"
+                android:title="@string/action_scottie2"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_scottiedx"
+                android:orderInCategory="100"
+                android:title="@string/action_scottiedx"
+                app:showAsAction="never" />
+
+        </menu>
+    </item>
     <item
-        android:id="@+id/action_scottie1"
-        android:orderInCategory="100"
-        android:title="@string/action_scottie1"
-        app:showAsAction="never" />
+        android:id="@+id/action_robot_modes"
+        android:title="@string/action_robot_modes">
+        <menu>
+            <item
+                android:id="@+id/action_robot36"
+                android:orderInCategory="100"
+                android:title="@string/action_robot36"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_robot72"
+                android:orderInCategory="100"
+                android:title="@string/action_robot72"
+                app:showAsAction="never" />
+        </menu>
+    </item>
     <item
-        android:id="@+id/action_scottie2"
-        android:orderInCategory="100"
-        android:title="@string/action_scottie2"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_scottiedx"
-        android:orderInCategory="100"
-        android:title="@string/action_scottiedx"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_robot36"
-        android:orderInCategory="100"
-        android:title="@string/action_robot36"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_robot72"
-        android:orderInCategory="100"
-        android:title="@string/action_robot72"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_wrasse"
-        android:orderInCategory="100"
-        android:title="@string/action_wrasse"
-        app:showAsAction="never" />
+        android:id="@+id/action_wrasse_modes"
+        android:title="@string/action_wrasse_modes">
+        <menu>
+            <item
+                android:id="@+id/action_wrasse"
+                android:orderInCategory="100"
+                android:title="@string/action_wrasse"
+                app:showAsAction="never" />
+        </menu>
+    </item>
 </menu>
