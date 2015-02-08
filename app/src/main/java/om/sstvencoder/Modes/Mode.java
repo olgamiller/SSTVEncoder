@@ -28,7 +28,7 @@ public abstract class Mode {
 
     protected Bitmap mBitmap;
     protected int mVISCode;
-    private int mLine;
+    protected int mLine;
 
     private short[] mAudioBuffer;
     private AudioTrack mAudioTrack;

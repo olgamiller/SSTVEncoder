@@ -23,6 +23,7 @@ import java.util.List;
 
 import om.sstvencoder.Modes.MartinModes.*;
 import om.sstvencoder.Modes.*;
+import om.sstvencoder.Modes.PDModes.*;
 import om.sstvencoder.Modes.ScottieModes.*;
 
 public class Encoder {
@@ -73,6 +74,10 @@ public class Encoder {
 
     public ModeSize setMartin2() {
         return setMode(Martin2.class);
+    }
+
+    public ModeSize setPD180() {
+        return setMode(PD180.class);
     }
 
     public ModeSize setScottie1() {

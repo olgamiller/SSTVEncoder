@@ -4,6 +4,7 @@
     <string name="app_name">SSTV Encoder</string>
     <string name="action_martin1">Martin 1</string>
     <string name="action_martin2">Martin 2</string>
+    <string name="action_pd180">PD 180</string>
     <string name="action_scottie1">Scottie 1</string>
     <string name="action_scottie2">Scottie 2</string>
     <string name="action_scottiedx">Scottie DX</string>
