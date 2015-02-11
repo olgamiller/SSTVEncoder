@@ -19,9 +19,9 @@ package om.sstvencoder.Modes;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
-//WRASSE SC2-180
+//WRAASE SC2-180
 @ModeSize(getWidth = 320, getHeight = 256)
-public class Wrasse extends Mode {
+public class Wraase extends Mode {
     private final int mColorScanSamples;
 
     private final int mSyncPulseSamples;
@@ -30,7 +30,7 @@ public class Wrasse extends Mode {
     private final int mPorchSamples;
     private final double mPorchFrequency;
 
-    public Wrasse(Bitmap bitmap) {
+    public Wraase(Bitmap bitmap) {
         super(bitmap);
 
         mVISCode = 55;

@@ -124,8 +124,8 @@ public class Encoder {
         return setMode(Robot72.class);
     }
 
-    public ModeSize setWrasse() {
-        return setMode(Wrasse.class);
+    public ModeSize setWraase() {
+        return setMode(Wraase.class);
     }
 
     private ModeSize setMode(Class<? extends Mode> modeClass) {

@@ -108,13 +108,13 @@
         </menu>
     </item>
     <item
-        android:id="@+id/action_wrasse_modes"
-        android:title="@string/action_wrasse_modes">
+        android:id="@+id/action_wraase_modes"
+        android:title="@string/action_wraase_modes">
         <menu>
             <item
-                android:id="@+id/action_wrasse"
+                android:id="@+id/action_wraase"
                 android:orderInCategory="100"
-                android:title="@string/action_wrasse"
+                android:title="@string/action_wraase"
                 app:showAsAction="never" />
         </menu>
     </item>

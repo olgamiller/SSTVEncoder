@@ -18,11 +18,11 @@
     <string name="action_scottiedx">Scottie DX</string>
     <string name="action_robot36">Robot 36</string>
     <string name="action_robot72">Robot 72</string>
-    <string name="action_wrasse">Wrasse SC2 180</string>
+    <string name="action_wraase">Wraase SC2 180</string>
     <string name="action_martin_modes">Martin Modes</string>
     <string name="action_pd_modes">PD Modes</string>
     <string name="action_scottie_modes">Scottie Modes</string>
     <string name="action_robot_modes">Robot Modes</string>
-    <string name="action_wrasse_modes">Wrasse Modes</string>
+    <string name="action_wraase_modes">Wraase Modes</string>
 
 </resources>

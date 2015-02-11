@@ -177,9 +177,9 @@ public class MainActivity extends ActionBarActivity {
                 mCropView.setModeSize(mEncoder.setRobot72());
                 setTitle(R.string.action_robot72);
                 return true;
-            case R.id.action_wrasse:
-                mCropView.setModeSize(mEncoder.setWrasse());
-                setTitle(R.string.action_wrasse);
+            case R.id.action_wraase:
+                mCropView.setModeSize(mEncoder.setWraase());
+                setTitle(R.string.action_wraase);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
