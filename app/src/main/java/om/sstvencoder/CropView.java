@@ -26,7 +26,11 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
 
 import java.io.BufferedInputStream;
@@ -36,6 +40,25 @@ import java.io.InputStream;
 import om.sstvencoder.Modes.ModeSize;
 
 public class CropView extends ImageView {
+
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            moveImage(distanceX, distanceY);
+            return true;
+        }
+    }
+
+    private class ScaleGestureListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            scaleImage(detector.getScaleFactor());
+            return true;
+        }
+    }
+
+    private GestureDetectorCompat mDetectorCompat;
+    private ScaleGestureDetector mScaleDetector;
     private ModeSize mModeSize;
     private final Paint mPaint, mRectPaint, mBorderPaint;
     private RectF mInputRect;
@@ -53,6 +76,9 @@ public class CropView extends ImageView {
 
     public CropView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mDetectorCompat = new GestureDetectorCompat(getContext(), new GestureListener());
+        mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureListener());
+
         mBitmapOptions = new BitmapFactory.Options();
 
         mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
@@ -165,6 +191,12 @@ public class CropView extends ImageView {
         dy = Math.min(mImageHeight - mInputRect.height() * 0.1f, mInputRect.top + dy) - mInputRect.top;
         mInputRect.offset(dx, dy);
         invalidate();
+    }
+
+    @Override
+    public boolean onTouchEvent(@NonNull MotionEvent e) {
+        boolean consumed = mScaleDetector.onTouchEvent(e);
+        return mDetectorCompat.onTouchEvent(e) || consumed || super.onTouchEvent(e);
     }
 
     @Override

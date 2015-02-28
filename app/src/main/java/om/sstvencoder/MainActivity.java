@@ -22,34 +22,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 
 public class MainActivity extends ActionBarActivity {
-
-    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            mCropView.moveImage(distanceX, distanceY);
-            return true;
-        }
-    }
-
-    private class ScaleGestureListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            mCropView.scaleImage(detector.getScaleFactor());
-            return true;
-        }
-    }
-
-    private GestureDetectorCompat mDetectorCompat;
-    private ScaleGestureDetector mScaleDetector;
     private CropView mCropView;
     private Encoder mEncoder;
 
@@ -58,8 +36,6 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        mDetectorCompat = new GestureDetectorCompat(this, new GestureListener());
-        mScaleDetector = new ScaleGestureDetector(this, new ScaleGestureListener());
         mCropView = (CropView) findViewById(R.id.cropView);
         mEncoder = new Encoder();
         mCropView.setModeSize(mEncoder.setRobot36());
@@ -188,12 +164,6 @@ public class MainActivity extends ActionBarActivity {
 
     private void send() {
         mEncoder.send(mCropView.getBitmap());
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent e) {
-        boolean consumed = mScaleDetector.onTouchEvent(e);
-        return mDetectorCompat.onTouchEvent(e) || consumed || super.onTouchEvent(e);
     }
 
     @Override
