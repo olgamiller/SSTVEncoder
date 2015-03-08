@@ -25,7 +25,8 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
+
+import om.sstvencoder.TextOverlay.LabelSettings;
 
 public class MainActivity extends ActionBarActivity {
     private CropView mCropView;
@@ -164,6 +165,22 @@ public class MainActivity extends ActionBarActivity {
 
     private void send() {
         mEncoder.send(mCropView.getBitmap());
+    }
+
+    public void startEditTextActivity(LabelSettings settings) {
+        Intent intent = new Intent(this, EditTextActivity.class);
+        intent.putExtra(EditTextActivity.SETTINGS_ID, settings);
+        startActivityForResult(intent, EditTextActivity.REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == EditTextActivity.REQUEST_CODE && data != null) {
+            mCropView.loadLabelSettings(resultCode == RESULT_OK ?
+                    (LabelSettings) data.getParcelableExtra(EditTextActivity.SETTINGS_ID) : null);
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override

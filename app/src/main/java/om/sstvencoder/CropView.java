@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import om.sstvencoder.Modes.ModeSize;
+import om.sstvencoder.TextOverlay.*;
 
 public class CropView extends ImageView {
 
@@ -46,6 +47,11 @@ public class CropView extends ImageView {
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             moveImage(distanceX, distanceY);
             return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            sendLabelSettings(e.getX(), e.getY());
         }
     }
 
@@ -73,6 +79,7 @@ public class CropView extends ImageView {
     private Rect mCacheRect;
     private int mCacheSampleSize;
     private final BitmapFactory.Options mBitmapOptions;
+    private LabelHandler mLabelHandler;
 
     public CropView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -93,6 +100,8 @@ public class CropView extends ImageView {
 
         mSmallImage = false;
         mImageOK = false;
+
+        mLabelHandler = new LabelHandler();
     }
 
     public void setModeSize(ModeSize size) {
@@ -203,6 +212,7 @@ public class CropView extends ImageView {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         mOutputRect = getModeRect(w, h);
+        mLabelHandler.update(w, h);
     }
 
     @Override
@@ -214,6 +224,7 @@ public class CropView extends ImageView {
         adjustCanvasAndImageRect(getWidth(), getHeight());
         canvas.drawRect(mOutputRect, mBorderPaint);
         drawBitmap(canvas);
+        mLabelHandler.drawLabels(canvas);
         drawModeRect(canvas);
     }
 
@@ -279,6 +290,7 @@ public class CropView extends ImageView {
         Canvas canvas = new Canvas(result);
         canvas.drawColor(Color.BLACK);
         drawBitmap(canvas);
+        mLabelHandler.drawLabels(canvas, mOutputRect, new Rect(0, 0, mModeSize.getWidth(), mModeSize.getHeight()));
 
         return result;
     }
@@ -341,5 +353,14 @@ public class CropView extends ImageView {
             rect.offset((w - ow) / 2, (h - (ih * ow) / iw) / 2);
         }
         return rect;
+    }
+
+    private void sendLabelSettings(float x, float y) {
+        LabelSettings settings = mLabelHandler.editLabelBegin(x, y, getWidth(), getHeight());
+        ((MainActivity) getContext()).startEditTextActivity(settings);
+    }
+
+    public void loadLabelSettings(LabelSettings settings) {
+        mLabelHandler.editLabelEnd(settings);
     }
 }
