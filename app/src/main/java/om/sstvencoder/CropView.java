@@ -361,6 +361,7 @@ public class CropView extends ImageView {
     }
 
     public void loadLabelSettings(LabelSettings settings) {
-        mLabelHandler.editLabelEnd(settings);
+        if (mLabelHandler.editLabelEnd(settings))
+            invalidate();
     }
 }

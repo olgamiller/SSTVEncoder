@@ -37,13 +37,15 @@ public class LabelHandler {
         return mEditLabel.getSettings();
     }
 
-    public void editLabelEnd(LabelSettings settings) {
+    public boolean editLabelEnd(LabelSettings settings) {
         if (valid(settings) && mEditLabel != null) {
             if (!mLabels.contains(mEditLabel))
                 add(mEditLabel);
             mEditLabel.loadSettings(settings);
+            return true;
         }
         mEditLabel = null;
+        return false;
     }
 
     public void drawLabels(Canvas canvas) {
