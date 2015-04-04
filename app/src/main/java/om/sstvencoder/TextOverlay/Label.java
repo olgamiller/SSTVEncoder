@@ -23,6 +23,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 
+import om.sstvencoder.Utility;
+
 class Label {
     private class Geometry {
         float mX, mY, mW, mH;
@@ -37,6 +39,7 @@ class Label {
 
     private String mText;
     private Paint mPaint;
+    private float mTextSize, mTextSizeFactor;
     private RectF mBounds;
     private Geometry mVertical, mHorizontal, mCurrent;
 
@@ -50,7 +53,7 @@ class Label {
         mBounds = new RectF();
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
-        mPaint.setTextSize(130.0f);
+        mTextSize = 2.0f;
         mPaint.setColor(Color.BLACK);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
@@ -59,13 +62,14 @@ class Label {
     public LabelSettings getSettings() {
         LabelSettings settings = new LabelSettings();
         settings.Text = mText;
-        settings.TextSize = mPaint.getTextSize();
+        settings.TextSize = mTextSize;
         return settings;
     }
 
     public void loadSettings(LabelSettings settings) {
         mText = settings.Text;
-        mPaint.setTextSize(settings.TextSize);
+        mTextSize = settings.TextSize;
+        setTextSizeFactor();
         adjustBounds();
     }
 
@@ -79,31 +83,45 @@ class Label {
         //canvas.drawRect(mBounds, mPaint);
         //mPaint.setStyle(Paint.Style.FILL);
         //mPaint.setColor(Color.BLACK);
+        mPaint.setTextSize(mTextSize * mTextSizeFactor);
         canvas.drawText(mText, mCurrent.mX, mCurrent.mY, mPaint);
     }
 
     public void draw(Canvas canvas, Rect src, Rect dst) {
         //mPaint.setColor(Color.BLACK);
-        float factor = dst.height() / (float) src.height();
-        float textSize = mPaint.getTextSize();
-        mPaint.setTextSize(textSize * factor);
+        float factor = (dst.height() / (float) src.height());
+        mPaint.setTextSize(mTextSize * mTextSizeFactor * factor);
         canvas.drawText(mText, (mCurrent.mX - src.left) * factor, (mCurrent.mY - src.top) * factor, mPaint);
-        mPaint.setTextSize(textSize);
     }
 
     public void update(float w, float h) {
+        setCurrentGeometry(w, h);
+        setTextSizeFactor();
+        adjustBounds();
+    }
+
+    private void setCurrentGeometry(float w, float h) {
         if (mVertical == null)
             mVertical = new Geometry(mHorizontal.mX - (mHorizontal.mW - w) / 2.0f, (h - mHorizontal.mH) / 2.0f + mHorizontal.mY, w, h);
         else if (mHorizontal == null)
             mHorizontal = new Geometry((w - mVertical.mW) / 2.0f + mVertical.mX, mVertical.mY - (mVertical.mH - h) / 2.0f, w, h);
         mCurrent = w < h ? mVertical : mHorizontal;
-        adjustBounds();
+    }
+
+    private void setTextSizeFactor() {
+        Rect bounds = Utility.getEmbeddedRect((int) mCurrent.mW, (int) mCurrent.mH, 320, 240);
+        mTextSizeFactor = 0.1f * bounds.height();
     }
 
     private void adjustBounds() {
-        Rect bounds = new Rect();
-        mPaint.getTextBounds(mText, 0, mText.length(), bounds);
-        mBounds.set(bounds);
+        mBounds.set(getTextBounds(mTextSize * mTextSizeFactor));
         mBounds.offset(mCurrent.mX, mCurrent.mY);
+    }
+
+    private Rect getTextBounds(float textSize) {
+        Rect bounds = new Rect();
+        mPaint.setTextSize(textSize);
+        mPaint.getTextBounds(mText, 0, mText.length(), bounds);
+        return bounds;
     }
 }

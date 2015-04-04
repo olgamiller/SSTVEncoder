@@ -50,8 +50,9 @@ public class CropView extends ImageView {
         }
 
         @Override
-        public void onLongPress(MotionEvent e) {
+        public boolean onSingleTapConfirmed(MotionEvent e) {
             sendLabelSettings(e.getX(), e.getY());
+            return true;
         }
     }
 
@@ -106,7 +107,7 @@ public class CropView extends ImageView {
 
     public void setModeSize(ModeSize size) {
         mModeSize = size;
-        mOutputRect = getModeRect(getWidth(), getHeight());
+        mOutputRect = Utility.getEmbeddedRect(getWidth(), getHeight(), mModeSize.getWidth(), mModeSize.getHeight());
         if (mImageOK) {
             resetInputRect();
             invalidate();
@@ -211,7 +212,7 @@ public class CropView extends ImageView {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mOutputRect = getModeRect(w, h);
+        mOutputRect = Utility.getEmbeddedRect(w, h, mModeSize.getWidth(), mModeSize.getHeight());
         mLabelHandler.update(w, h);
     }
 
@@ -335,24 +336,6 @@ public class CropView extends ImageView {
         }
         canvas.drawBitmap(mCacheBitmap, mImageDrawRect, mCanvasDrawRect, mPaint);
         canvas.restore();
-    }
-
-    private Rect getModeRect(int w, int h) {
-        Rect rect;
-        int iw = mModeSize.getWidth();
-        int ih = mModeSize.getHeight();
-
-        int ow = (9 * w) / 10;
-        int oh = (9 * h) / 10;
-
-        if (iw * oh < ow * ih) {
-            rect = new Rect(0, 0, (iw * oh) / ih, oh);
-            rect.offset((w - (iw * oh) / ih) / 2, (h - oh) / 2);
-        } else {
-            rect = new Rect(0, 0, ow, (ih * ow) / iw);
-            rect.offset((w - ow) / 2, (h - (ih * ow) / iw) / 2);
-        }
-        return rect;
     }
 
     private void sendLabelSettings(float x, float y) {
