@@ -19,6 +19,7 @@ package om.sstvencoder.TextOverlay;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -27,41 +28,116 @@ import om.sstvencoder.Utility;
 
 class Label {
 
+    private interface IDrawer {
+        public void draw(Canvas canvas);
+
+        public void draw(Canvas canvas, Rect src, Rect dst);
+    }
+
+    private class InsideDrawer implements IDrawer {
+        @Override
+        public void draw(Canvas canvas) {
+            setPaintSettings();
+            mPaint.setTextSize(mTextSize * mTextSizeFactor);
+            canvas.drawText(mText, mCurrent.mX, mCurrent.mY, mPaint);
+        }
+
+        @Override
+        public void draw(Canvas canvas, Rect src, Rect dst) {
+            float factor = (dst.height() / (float) src.height());
+            setPaintSettings();
+            mPaint.setTextSize(mTextSize * mTextSizeFactor * factor);
+            canvas.drawText(mText, (mCurrent.mX - src.left) * factor, (mCurrent.mY - src.top) * factor, mPaint);
+        }
+
+        private void setPaintSettings() {
+            mPaint.setColor(mColor);
+            mPaint.setAlpha(255);
+            mPaint.setStyle(Paint.Style.FILL);
+        }
+    }
+
+    private class OutsideDrawer implements IDrawer {
+        @Override
+        public void draw(Canvas canvas) {
+            int color = mPaint.getColor();
+            Paint.Style style = mPaint.getStyle();
+
+            mPaint.setColor(mColor);
+            mPaint.setAlpha(255);
+            mPaint.setStyle(Paint.Style.FILL);
+            canvas.drawPath(mPath, mPaint);
+
+            mPaint.setColor(Color.WHITE);
+            mPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawPath(mPath, mPaint);
+
+            mPaint.setColor(color);
+            mPaint.setStyle(style);
+        }
+
+        @Override
+        public void draw(Canvas canvas, Rect src, Rect dst) {
+        }
+    }
+
     private interface IShadow {
+        public void setCircle(float x, float y, float r);
+
+        public void setInside(boolean inside);
+
         public void draw(Canvas canvas);
     }
 
     private class Shadow implements IShadow {
+        private float mX, mY, mR;
+        private boolean mInside;
+
+        @Override
+        public void setCircle(float x, float y, float r) {
+            mX = x;
+            mY = y;
+            mR = r;
+        }
+
+        @Override
+        public void setInside(boolean inside) {
+            mInside = inside;
+        }
+
         @Override
         public void draw(Canvas canvas) {
-            final float r = 10.0f;
-            final float expansion = 2.0f;
-            final RectF bounds = new RectF(
-                    mBounds.left - expansion,
-                    mBounds.top - expansion,
-                    mBounds.right + expansion,
-                    mBounds.bottom + expansion);
-
-            int alpha = mPaint.getAlpha();
-            int color = mPaint.getColor();
-            Paint.Style style = mPaint.getStyle();
-
             mPaint.setColor(Color.LTGRAY);
             mPaint.setAlpha(100);
             mPaint.setStyle(Paint.Style.FILL);
-            canvas.drawRoundRect(bounds, r, r, mPaint);
-            mPaint.setColor(Color.GREEN);
-            mPaint.setStyle(Paint.Style.STROKE);
-            canvas.drawRoundRect(bounds, r, r, mPaint);
+            drawShadow(canvas);
 
-            //reset
-            mPaint.setColor(color);
-            mPaint.setAlpha(alpha);
-            mPaint.setStyle(style);
+            mPaint.setColor(Color.GREEN);
+            mPaint.setAlpha(200);
+            mPaint.setStyle(Paint.Style.STROKE);
+            drawShadow(canvas);
+        }
+
+        private void drawShadow(Canvas canvas) {
+            if (mInside) {
+                RectF bounds = new RectF(mBounds);
+                bounds.inset(-2.0f, 2.0f);
+                canvas.drawRoundRect(bounds, 10.0f, 10.0f, mPaint);
+            } else {
+                canvas.drawCircle(mX, mY, mR, mPaint);
+            }
         }
     }
 
     private class ShadowNull implements IShadow {
+        @Override
+        public void setCircle(float x, float y, float r) {
+        }
+
+        @Override
+        public void setInside(boolean inside) {
+        }
+
         @Override
         public void draw(Canvas canvas) {
         }
@@ -84,11 +160,14 @@ class Label {
     }
 
     private String mText;
+    private int mColor;
     private Paint mPaint;
     private float mTextSize, mTextSizeFactor;
     private RectF mBounds;
     private Geometry mVertical, mHorizontal, mCurrent;
     private IShadow mShadow;
+    private IDrawer mDrawer;
+    private Path mPath;
 
     public Label(float x, float y, float w, float h) {
         mCurrent = new Geometry(x, y, w, h);
@@ -97,14 +176,17 @@ class Label {
         else
             mHorizontal = mCurrent;
         mShadow = new ShadowNull();
+        mDrawer = new InsideDrawer();
+
         mText = "";
-        mBounds = new RectF();
+        mTextSize = 2.0f;
+        mColor = Color.BLACK;
+
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
-        mTextSize = 2.0f;
-        mPaint.setColor(Color.BLACK);
-        mPaint.setStyle(Paint.Style.FILL);
         mPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+
+        mBounds = new RectF();
     }
 
     public LabelSettings getSettings() {
@@ -118,11 +200,20 @@ class Label {
         mText = settings.Text;
         mTextSize = settings.TextSize;
         setTextSizeFactor();
-        adjustBounds();
+        adjust();
     }
 
     public boolean contains(float x, float y) {
         return mBounds.contains(x, y);
+    }
+
+    public void draw(Canvas canvas) {
+        mShadow.draw(canvas);
+        mDrawer.draw(canvas);
+    }
+
+    public void draw(Canvas canvas, Rect src, Rect dst) {
+        mDrawer.draw(canvas, src, dst);
     }
 
     public void drag() {
@@ -144,25 +235,13 @@ class Label {
             mHorizontal.mX = (mHorizontal.mW - mVertical.mW) / 2.0f + mVertical.mX;
             mHorizontal.mY = mVertical.mY - (mVertical.mH - mHorizontal.mH) / 2.0f;
         }
-        adjustBounds();
-    }
-
-    public void draw(Canvas canvas) {
-        mShadow.draw(canvas);
-        mPaint.setTextSize(mTextSize * mTextSizeFactor);
-        canvas.drawText(mText, mCurrent.mX, mCurrent.mY, mPaint);
-    }
-
-    public void draw(Canvas canvas, Rect src, Rect dst) {
-        float factor = (dst.height() / (float) src.height());
-        mPaint.setTextSize(mTextSize * mTextSizeFactor * factor);
-        canvas.drawText(mText, (mCurrent.mX - src.left) * factor, (mCurrent.mY - src.top) * factor, mPaint);
+        adjust();
     }
 
     public void update(float w, float h) {
         setCurrentGeometry(w, h);
         setTextSizeFactor();
-        adjustBounds();
+        adjust();
     }
 
     private void setCurrentGeometry(float w, float h) {
@@ -178,9 +257,54 @@ class Label {
         mTextSizeFactor = 0.1f * bounds.height();
     }
 
-    private void adjustBounds() {
+    private void adjust() {
         mBounds.set(getTextBounds(mText, mTextSize * mTextSizeFactor));
         mBounds.offset(mCurrent.mX, mCurrent.mY);
+
+        float m = getTextBounds("M", 2.0f * mTextSizeFactor).width();
+        boolean leftOut = mBounds.right < m;
+        boolean topOut = mBounds.bottom < m;
+        boolean rightOut = mCurrent.mW - mBounds.left < m;
+        boolean bottomOut = mCurrent.mH - mBounds.top < m;
+
+        boolean inside = !(leftOut || topOut || rightOut || bottomOut);
+        mShadow.setInside(inside);
+
+        if (inside) {
+            mDrawer = new InsideDrawer();
+            mPath = null;
+        } else {
+            mDrawer = new OutsideDrawer();
+            if (mPath == null)
+                mPath = new Path();
+            else
+                mPath.reset();
+
+            float half = m / 2.0f;
+            float halfWidth = Math.min(Math.max((mBounds.left + mBounds.right) / 2.0f, half), mCurrent.mW - half);
+            float halfHeight = Math.min(Math.max((mBounds.top + mBounds.bottom) / 2.0f, half), mCurrent.mH - half);
+
+            if (leftOut) {
+                if (topOut && (m - mBounds.right > m - mBounds.bottom))
+                    setTopOut(m, half, halfWidth);
+                else if (bottomOut && (m - mBounds.right > m - mCurrent.mH + mBounds.top))
+                    setBottomOut(m, half, halfWidth);
+                else
+                    setLeftOut(m, half, halfHeight);
+            } else if (topOut) {
+                if (rightOut && (m - mBounds.bottom > m - mCurrent.mW + mBounds.left))
+                    setRightOut(m, half, halfHeight);
+                else
+                    setTopOut(m, half, halfWidth);
+            } else if (rightOut) {
+                if (bottomOut && (m - mCurrent.mW + mBounds.left > m - mCurrent.mH + mBounds.top))
+                    setBottomOut(m, half, halfWidth);
+                else
+                    setRightOut(m, half, halfHeight);
+            } else {
+                setBottomOut(m, half, halfWidth);
+            }
+        }
     }
 
     private Rect getTextBounds(String text, float textSize) {
@@ -188,5 +312,41 @@ class Label {
         mPaint.setTextSize(textSize);
         mPaint.getTextBounds(text, 0, text.length(), bounds);
         return bounds;
+    }
+
+    private void setLeftOut(float m, float half, float halfHeight) {
+        mPath.moveTo(0.0f, halfHeight - half);
+        mPath.lineTo(0.0f, halfHeight + half);
+        mPath.lineTo(half / 2.0f, halfHeight);
+        mPath.lineTo(0.0f, halfHeight - half);
+        mBounds.set(0.0f, halfHeight - half, m, halfHeight + half);
+        mShadow.setCircle(0.0f, halfHeight, m);
+    }
+
+    private void setTopOut(float m, float half, float halfWidth) {
+        mPath.moveTo(halfWidth - half, 0.0f);
+        mPath.lineTo(halfWidth + half, 0.0f);
+        mPath.lineTo(halfWidth, half / 2.0f);
+        mPath.lineTo(halfWidth - half, 0.0f);
+        mBounds.set(halfWidth - half, 0.0f, halfWidth + half, m);
+        mShadow.setCircle(halfWidth, 0.0f, m);
+    }
+
+    private void setRightOut(float m, float half, float halfHeight) {
+        mPath.moveTo(mCurrent.mW, halfHeight - half);
+        mPath.lineTo(mCurrent.mW, halfHeight + half);
+        mPath.lineTo(mCurrent.mW - half / 2.0f, halfHeight);
+        mPath.lineTo(mCurrent.mW, halfHeight - half);
+        mBounds.set(mCurrent.mW - m, halfHeight - half, mCurrent.mW, halfHeight + half);
+        mShadow.setCircle(mCurrent.mW, halfHeight, m);
+    }
+
+    private void setBottomOut(float m, float half, float halfWidth) {
+        mPath.moveTo(halfWidth - half, mCurrent.mH);
+        mPath.lineTo(halfWidth + half, mCurrent.mH);
+        mPath.lineTo(halfWidth, mCurrent.mH - half / 2.0f);
+        mPath.lineTo(halfWidth - half, mCurrent.mH);
+        mBounds.set(halfWidth - half, mCurrent.mH - m, halfWidth + half, mCurrent.mH);
+        mShadow.setCircle(halfWidth, mCurrent.mH, m);
     }
 }
