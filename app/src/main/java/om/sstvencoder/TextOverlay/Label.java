@@ -26,6 +26,47 @@ import android.graphics.Typeface;
 import om.sstvencoder.Utility;
 
 class Label {
+
+    private interface IShadow {
+        public void draw(Canvas canvas);
+    }
+
+    private class Shadow implements IShadow {
+        @Override
+        public void draw(Canvas canvas) {
+            final float r = 10.0f;
+            final float expansion = 2.0f;
+            final RectF bounds = new RectF(
+                    mBounds.left - expansion,
+                    mBounds.top - expansion,
+                    mBounds.right + expansion,
+                    mBounds.bottom + expansion);
+
+            int alpha = mPaint.getAlpha();
+            int color = mPaint.getColor();
+            Paint.Style style = mPaint.getStyle();
+
+            mPaint.setColor(Color.LTGRAY);
+            mPaint.setAlpha(100);
+            mPaint.setStyle(Paint.Style.FILL);
+            canvas.drawRoundRect(bounds, r, r, mPaint);
+            mPaint.setColor(Color.GREEN);
+            mPaint.setStyle(Paint.Style.STROKE);
+            canvas.drawRoundRect(bounds, r, r, mPaint);
+
+            //reset
+            mPaint.setColor(color);
+            mPaint.setAlpha(alpha);
+            mPaint.setStyle(style);
+        }
+    }
+
+    private class ShadowNull implements IShadow {
+        @Override
+        public void draw(Canvas canvas) {
+        }
+    }
+
     private class Geometry {
         float mX, mY, mW, mH;
 
@@ -35,6 +76,11 @@ class Label {
             mW = w;
             mH = h;
         }
+
+        public void offset(float x, float y) {
+            mX += x;
+            mY += y;
+        }
     }
 
     private String mText;
@@ -42,6 +88,7 @@ class Label {
     private float mTextSize, mTextSizeFactor;
     private RectF mBounds;
     private Geometry mVertical, mHorizontal, mCurrent;
+    private IShadow mShadow;
 
     public Label(float x, float y, float w, float h) {
         mCurrent = new Geometry(x, y, w, h);
@@ -49,6 +96,7 @@ class Label {
             mVertical = mCurrent;
         else
             mHorizontal = mCurrent;
+        mShadow = new ShadowNull();
         mText = "";
         mBounds = new RectF();
         mPaint = new Paint();
@@ -77,18 +125,35 @@ class Label {
         return mBounds.contains(x, y);
     }
 
+    public void drag() {
+        mShadow = new Shadow();
+    }
+
+    public void drop() {
+        mShadow = new ShadowNull();
+    }
+
+    public void move(float x, float y) {
+        mCurrent.offset(x, y);
+        if (mCurrent.mW > mCurrent.mH) {
+            if (mVertical != null) {
+                mVertical.mX = mHorizontal.mX - (mHorizontal.mW - mVertical.mW) / 2.0f;
+                mVertical.mY = (mVertical.mH - mHorizontal.mH) / 2.0f + mHorizontal.mY;
+            }
+        } else if (mHorizontal != null) {
+            mHorizontal.mX = (mHorizontal.mW - mVertical.mW) / 2.0f + mVertical.mX;
+            mHorizontal.mY = mVertical.mY - (mVertical.mH - mHorizontal.mH) / 2.0f;
+        }
+        adjustBounds();
+    }
+
     public void draw(Canvas canvas) {
-        //mPaint.setStyle(Paint.Style.STROKE);
-        //mPaint.setColor(Color.GREEN);
-        //canvas.drawRect(mBounds, mPaint);
-        //mPaint.setStyle(Paint.Style.FILL);
-        //mPaint.setColor(Color.BLACK);
+        mShadow.draw(canvas);
         mPaint.setTextSize(mTextSize * mTextSizeFactor);
         canvas.drawText(mText, mCurrent.mX, mCurrent.mY, mPaint);
     }
 
     public void draw(Canvas canvas, Rect src, Rect dst) {
-        //mPaint.setColor(Color.BLACK);
         float factor = (dst.height() / (float) src.height());
         mPaint.setTextSize(mTextSize * mTextSizeFactor * factor);
         canvas.drawText(mText, (mCurrent.mX - src.left) * factor, (mCurrent.mY - src.top) * factor, mPaint);
@@ -114,14 +179,14 @@ class Label {
     }
 
     private void adjustBounds() {
-        mBounds.set(getTextBounds(mTextSize * mTextSizeFactor));
+        mBounds.set(getTextBounds(mText, mTextSize * mTextSizeFactor));
         mBounds.offset(mCurrent.mX, mCurrent.mY);
     }
 
-    private Rect getTextBounds(float textSize) {
+    private Rect getTextBounds(String text, float textSize) {
         Rect bounds = new Rect();
         mPaint.setTextSize(textSize);
-        mPaint.getTextBounds(mText, 0, mText.length(), bounds);
+        mPaint.getTextBounds(text, 0, text.length(), bounds);
         return bounds;
     }
 }

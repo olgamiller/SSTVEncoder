@@ -50,6 +50,16 @@ public class CropView extends ImageView {
         }
 
         @Override
+        public void onLongPress(MotionEvent e) {
+            mLongPress = false;
+            if (!mInScale && mLabelHandler.dragLabel(e.getX(), e.getY())) {
+                // Utility.vibrate(100, getContext());
+                invalidate();
+                mLongPress = true;
+            }
+        }
+
+        @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             sendLabelSettings(e.getX(), e.getY());
             return true;
@@ -58,14 +68,26 @@ public class CropView extends ImageView {
 
     private class ScaleGestureListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            mInScale = true;
+            return true;
+        }
+
+        @Override
         public boolean onScale(ScaleGestureDetector detector) {
             scaleImage(detector.getScaleFactor());
             return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            mInScale = false;
         }
     }
 
     private GestureDetectorCompat mDetectorCompat;
     private ScaleGestureDetector mScaleDetector;
+    private boolean mLongPress, mInScale;
     private ModeSize mModeSize;
     private final Paint mPaint, mRectPaint, mBorderPaint;
     private RectF mInputRect;
@@ -205,8 +227,30 @@ public class CropView extends ImageView {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent e) {
-        boolean consumed = mScaleDetector.onTouchEvent(e);
-        return mDetectorCompat.onTouchEvent(e) || consumed || super.onTouchEvent(e);
+        boolean longPress = mLongPress;
+
+        if (longPress) {
+            switch (e.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    longPress = false;
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    mLabelHandler.moveLabel(e.getX(), e.getY());
+                    invalidate();
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    mLabelHandler.dropLabel(e.getX(), e.getY());
+                    invalidate();
+                    mLongPress = false;
+                    return true;
+            }
+        }
+        if (!longPress) {
+            boolean consumed = mScaleDetector.onTouchEvent(e);
+            return mDetectorCompat.onTouchEvent(e) || consumed || super.onTouchEvent(e);
+        }
+
+        return false;
     }
 
     @Override

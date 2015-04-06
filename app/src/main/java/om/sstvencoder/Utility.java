@@ -16,23 +16,26 @@ limitations under the License.
 
 package om.sstvencoder;
 
-import android.graphics.Rect;
-
 public final class Utility {
 
-    public static Rect getEmbeddedRect(int w, int h, int iw, int ih) {
-        Rect rect;
+    public static android.graphics.Rect getEmbeddedRect(int w, int h, int iw, int ih) {
+        android.graphics.Rect rect;
 
         int ow = (9 * w) / 10;
         int oh = (9 * h) / 10;
 
         if (iw * oh < ow * ih) {
-            rect = new Rect(0, 0, (iw * oh) / ih, oh);
+            rect = new android.graphics.Rect(0, 0, (iw * oh) / ih, oh);
             rect.offset((w - (iw * oh) / ih) / 2, (h - oh) / 2);
         } else {
-            rect = new Rect(0, 0, ow, (ih * ow) / iw);
+            rect = new android.graphics.Rect(0, 0, ow, (ih * ow) / iw);
             rect.offset((w - ow) / 2, (h - (ih * ow) / iw) / 2);
         }
         return rect;
     }
+
+    /* public static void vibrate(int duration, android.content.Context context) {
+        android.os.Vibrator vibrator = (android.os.Vibrator) context.getSystemService(android.content.Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(duration);
+    } */
 }

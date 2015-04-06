@@ -25,9 +25,12 @@ import java.util.List;
 public class LabelHandler {
     private List<Label> mLabels;
     private Label mEditLabel;
+    private float mPreviousX, mPreviousY;
 
     public LabelHandler() {
         mLabels = new LinkedList<>();
+        mPreviousX = 0;
+        mPreviousY = 0;
     }
 
     public LabelSettings editLabelBegin(float x, float y, float w, float h) {
@@ -42,6 +45,7 @@ public class LabelHandler {
             if (!mLabels.contains(mEditLabel))
                 add(mEditLabel);
             mEditLabel.loadSettings(settings);
+            mEditLabel = null;
             return true;
         }
         mEditLabel = null;
@@ -63,6 +67,33 @@ public class LabelHandler {
             label.update(w, h);
     }
 
+    public boolean dragLabel(float x, float y) {
+        if (mEditLabel == null) {
+            Label label = findLabel(x, y);
+            if (label != null) {
+                mEditLabel = label;
+                moveToFront(mEditLabel);
+                mPreviousX = x;
+                mPreviousY = y;
+                mEditLabel.drag();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void dropLabel(float x, float y) {
+        moveLabel(x, y);
+        mEditLabel.drop();
+        mEditLabel = null;
+    }
+
+    public void moveLabel(float x, float y) {
+        mEditLabel.move(x - mPreviousX, y - mPreviousY);
+        mPreviousX = x;
+        mPreviousY = y;
+    }
+
     private Label findLabel(float x, float y) {
         for (Label label : mLabels) {
             if (label.contains(x, y))
@@ -80,5 +111,10 @@ public class LabelHandler {
             mLabels.add(label);
         else
             mLabels.add(0, label);
+    }
+
+    private void moveToFront(Label label) {
+        mLabels.remove(label);
+        add(label);
     }
 }
