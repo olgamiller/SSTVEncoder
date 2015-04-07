@@ -45,8 +45,11 @@ public class CropView extends ImageView {
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            moveImage(distanceX, distanceY);
-            return true;
+            if (!mLongPress) {
+                moveImage(distanceX, distanceY);
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -61,16 +64,22 @@ public class CropView extends ImageView {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            sendLabelSettings(e.getX(), e.getY());
-            return true;
+            if (!mLongPress) {
+                sendLabelSettings(e.getX(), e.getY());
+                return true;
+            }
+            return false;
         }
     }
 
     private class ScaleGestureListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
-            mInScale = true;
-            return true;
+            if (!mLongPress) {
+                mInScale = true;
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -227,13 +236,8 @@ public class CropView extends ImageView {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent e) {
-        boolean longPress = mLongPress;
-
-        if (longPress) {
+        if (mLongPress) {
             switch (e.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    longPress = false;
-                    break;
                 case MotionEvent.ACTION_MOVE:
                     mLabelHandler.moveLabel(e.getX(), e.getY());
                     invalidate();
@@ -245,12 +249,8 @@ public class CropView extends ImageView {
                     return true;
             }
         }
-        if (!longPress) {
-            boolean consumed = mScaleDetector.onTouchEvent(e);
-            return mDetectorCompat.onTouchEvent(e) || consumed || super.onTouchEvent(e);
-        }
-
-        return false;
+        boolean consumed = mScaleDetector.onTouchEvent(e);
+        return mDetectorCompat.onTouchEvent(e) || consumed || super.onTouchEvent(e);
     }
 
     @Override
