@@ -236,20 +236,23 @@ public class CropView extends ImageView {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent e) {
+        boolean consumed = false;
         if (mLongPress) {
             switch (e.getAction()) {
                 case MotionEvent.ACTION_MOVE:
                     mLabelHandler.moveLabel(e.getX(), e.getY());
                     invalidate();
-                    return true;
+                    consumed = true;
+                    break;
                 case MotionEvent.ACTION_UP:
                     mLabelHandler.dropLabel(e.getX(), e.getY());
                     invalidate();
                     mLongPress = false;
-                    return true;
+                    consumed = true;
+                    break;
             }
         }
-        boolean consumed = mScaleDetector.onTouchEvent(e);
+        consumed = mScaleDetector.onTouchEvent(e) || consumed;
         return mDetectorCompat.onTouchEvent(e) || consumed || super.onTouchEvent(e);
     }
 
