@@ -121,7 +121,7 @@ class Label {
         private void drawShadow(Canvas canvas) {
             if (mInside) {
                 RectF bounds = new RectF(mBounds);
-                bounds.inset(-2.0f, 2.0f);
+                bounds.inset(-2.0f, -2.0f);
                 canvas.drawRoundRect(bounds, 10.0f, 10.0f, mPaint);
             } else {
                 canvas.drawCircle(mX, mY, mR, mPaint);
@@ -218,6 +218,7 @@ class Label {
 
     public void drag() {
         mShadow = new Shadow();
+        adjust();
     }
 
     public void drop() {

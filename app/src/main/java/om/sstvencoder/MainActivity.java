@@ -175,8 +175,8 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == EditTextActivity.REQUEST_CODE && data != null) {
-            mCropView.loadLabelSettings(resultCode == RESULT_OK ?
+        if (requestCode == EditTextActivity.REQUEST_CODE) {
+            mCropView.loadLabelSettings(resultCode == RESULT_OK && data != null ?
                     (LabelSettings) data.getParcelableExtra(EditTextActivity.SETTINGS_ID) : null);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
