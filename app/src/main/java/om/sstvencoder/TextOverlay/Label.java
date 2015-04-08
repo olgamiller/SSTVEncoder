@@ -110,21 +110,25 @@ class Label {
             mPaint.setColor(Color.LTGRAY);
             mPaint.setAlpha(100);
             mPaint.setStyle(Paint.Style.FILL);
-            drawShadow(canvas);
+            drawShadow(canvas, 0.0f);
 
-            mPaint.setColor(Color.GREEN);
-            mPaint.setAlpha(200);
+            mPaint.setAlpha(255);
             mPaint.setStyle(Paint.Style.STROKE);
-            drawShadow(canvas);
+            mPaint.setColor(Color.RED);
+            drawShadow(canvas, 1.0f);
+            mPaint.setColor(Color.GREEN);
+            drawShadow(canvas, 0.0f);
+            mPaint.setColor(Color.BLUE);
+            drawShadow(canvas, -1.0f);
         }
 
-        private void drawShadow(Canvas canvas) {
+        private void drawShadow(Canvas canvas, float dx) {
             if (mInside) {
                 RectF bounds = new RectF(mBounds);
-                bounds.inset(-2.0f, -2.0f);
+                bounds.inset(-4.0f - dx, -4.0f - dx);
                 canvas.drawRoundRect(bounds, 10.0f, 10.0f, mPaint);
             } else {
-                canvas.drawCircle(mX, mY, mR, mPaint);
+                canvas.drawCircle(mX, mY, mR + dx, mPaint);
             }
         }
     }
