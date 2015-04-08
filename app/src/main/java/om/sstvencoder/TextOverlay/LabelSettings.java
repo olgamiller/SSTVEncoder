@@ -32,10 +32,11 @@ public class LabelSettings implements Parcelable {
         }
     };
 
-    public String Text;
     public float TextSize;
+    private String mText;
 
     public LabelSettings() {
+        mText = "";
     }
 
     public LabelSettings(Parcel src) {
@@ -43,18 +44,29 @@ public class LabelSettings implements Parcelable {
     }
 
     private void readFromParcel(Parcel src) {
-        Text = src.readString();
+        setText(src.readString());
         TextSize = src.readFloat();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(Text);
+        dest.writeString(mText);
         dest.writeFloat(TextSize);
     }
 
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    public void setText(String text) {
+        if (text != null)
+            mText = text.trim();
+        else
+            mText = "";
+    }
+
+    public String getText() {
+        return mText;
     }
 }

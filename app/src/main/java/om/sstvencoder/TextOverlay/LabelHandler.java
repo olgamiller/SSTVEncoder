@@ -41,15 +41,19 @@ public class LabelHandler {
     }
 
     public boolean editLabelEnd(LabelSettings settings) {
-        if (valid(settings) && mEditLabel != null) {
-            if (!mLabels.contains(mEditLabel))
-                add(mEditLabel);
-            mEditLabel.loadSettings(settings);
-            mEditLabel = null;
-            return true;
+        boolean edited = false;
+        if (settings != null) {
+            if (settings.getText().length() != 0) {
+                if (!mLabels.contains(mEditLabel))
+                    add(mEditLabel);
+                mEditLabel.loadSettings(settings);
+            } else if (mLabels.contains(mEditLabel)) {
+                mLabels.remove(mEditLabel);
+            }
+            edited = true;
         }
         mEditLabel = null;
-        return false;
+        return edited;
     }
 
     public void drawLabels(Canvas canvas) {
@@ -100,10 +104,6 @@ public class LabelHandler {
                 return label;
         }
         return null;
-    }
-
-    private boolean valid(LabelSettings settings) {
-        return settings != null && settings.Text.trim().length() != 0;
     }
 
     private void add(Label label) {

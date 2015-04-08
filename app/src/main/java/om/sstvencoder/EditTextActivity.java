@@ -38,7 +38,7 @@ public class EditTextActivity extends ActionBarActivity {
         setContentView(R.layout.activity_edit_text);
         mSettings = getIntent().getParcelableExtra(SETTINGS_ID);
         mEditText = (EditText) findViewById(R.id.edit_text);
-        mEditText.setText(mSettings.Text);
+        mEditText.setText(mSettings.getText());
         mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
@@ -53,7 +53,7 @@ public class EditTextActivity extends ActionBarActivity {
 
     private void handleActionDone() {
         Intent intent = new Intent();
-        mSettings.Text = mEditText.getText().toString();
+        mSettings.setText(mEditText.getText().toString());
         intent.putExtra(SETTINGS_ID, mSettings);
         setResult(RESULT_OK, intent);
         finish();

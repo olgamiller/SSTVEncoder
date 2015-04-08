@@ -191,13 +191,13 @@ class Label {
 
     public LabelSettings getSettings() {
         LabelSettings settings = new LabelSettings();
-        settings.Text = mText;
+        settings.setText(mText);
         settings.TextSize = mTextSize;
         return settings;
     }
 
     public void loadSettings(LabelSettings settings) {
-        mText = settings.Text;
+        mText = settings.getText();
         mTextSize = settings.TextSize;
         setTextSizeFactor();
         adjust();
