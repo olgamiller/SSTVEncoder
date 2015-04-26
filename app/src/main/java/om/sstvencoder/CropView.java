@@ -245,7 +245,8 @@ public class CropView extends ImageView {
                     consumed = true;
                     break;
                 case MotionEvent.ACTION_UP:
-                    mLabelHandler.dropLabel(e.getX(), e.getY());
+                case MotionEvent.ACTION_CANCEL:
+                    mLabelHandler.dropLabel();
                     invalidate();
                     mLongPress = false;
                     consumed = true;

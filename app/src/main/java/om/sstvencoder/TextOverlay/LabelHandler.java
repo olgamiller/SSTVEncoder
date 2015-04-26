@@ -86,8 +86,7 @@ public class LabelHandler {
         return false;
     }
 
-    public void dropLabel(float x, float y) {
-        moveLabel(x, y);
+    public void dropLabel() {
         mEditLabel.drop();
         mEditLabel = null;
     }
