@@ -161,6 +161,11 @@ class Label {
             mX += x;
             mY += y;
         }
+
+        public void set(float x, float y) {
+            mX = x;
+            mY = y;
+        }
     }
 
     private String mText;
@@ -222,7 +227,7 @@ class Label {
 
     public void drag() {
         mShadow = new Shadow();
-        adjust();
+        moveToBorder();
     }
 
     public void drop() {
@@ -231,6 +236,11 @@ class Label {
 
     public void move(float x, float y) {
         mCurrent.offset(x, y);
+        adjustGeometry();
+        adjust();
+    }
+
+    private void adjustGeometry() {
         if (mCurrent.mW > mCurrent.mH) {
             if (mVertical != null) {
                 mVertical.mX = mHorizontal.mX - (mHorizontal.mW - mVertical.mW) / 2.0f;
@@ -239,6 +249,32 @@ class Label {
         } else if (mHorizontal != null) {
             mHorizontal.mX = (mHorizontal.mW - mVertical.mW) / 2.0f + mVertical.mX;
             mHorizontal.mY = mVertical.mY - (mVertical.mH - mHorizontal.mH) / 2.0f;
+        }
+    }
+
+    private void moveToBorder() {
+        if (mDrawer instanceof OutsideDrawer) {
+            float x, y;
+            float m = getTextBounds("M", 2.0f * mTextSizeFactor).width();
+            mBounds.set(getTextBounds(mText, mTextSize * mTextSizeFactor));
+            mBounds.offset(mCurrent.mX, mCurrent.mY);
+
+            if (mCurrent.mX + mBounds.width() < m)
+                x = mCurrent.mX - mBounds.right + m / 2.0f;
+            else if (mCurrent.mW - mCurrent.mX >= m)
+                x = mCurrent.mX;
+            else
+                x = mCurrent.mW + mBounds.left - mCurrent.mX - m / 2.0f;
+
+            if (mBounds.top + mBounds.height() < m)
+                y = mCurrent.mY - mBounds.top - m / 2.0f;
+            else if (mCurrent.mH - mBounds.top >= m)
+                y = mCurrent.mY;
+            else
+                y = mCurrent.mH + mCurrent.mY - mBounds.bottom + m / 2.0f;
+
+            mCurrent.set(x, y);
+            adjustGeometry();
         }
         adjust();
     }
