@@ -29,9 +29,9 @@ import om.sstvencoder.Utility;
 class Label {
 
     private interface IDrawer {
-        public void draw(Canvas canvas);
+        void draw(Canvas canvas);
 
-        public void draw(Canvas canvas, Rect src, Rect dst);
+        void draw(Canvas canvas, Rect src, Rect dst);
     }
 
     private class InsideDrawer implements IDrawer {
@@ -82,11 +82,11 @@ class Label {
     }
 
     private interface IShadow {
-        public void setCircle(float x, float y, float r);
+        void setCircle(float x, float y, float r);
 
-        public void setInside(boolean inside);
+        void setInside(boolean inside);
 
-        public void draw(Canvas canvas);
+        void draw(Canvas canvas);
     }
 
     private class Shadow implements IShadow {
