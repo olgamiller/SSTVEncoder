@@ -18,7 +18,7 @@ package om.sstvencoder;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 import om.sstvencoder.TextOverlay.LabelSettings;
 
-public class EditTextActivity extends ActionBarActivity {
+public class EditTextActivity extends AppCompatActivity {
     public static final int REQUEST_CODE = 101;
     public static final String SETTINGS_ID = "Settings";
     private EditText mEditText;
