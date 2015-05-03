@@ -173,42 +173,40 @@ public class CropView extends ImageView {
         }
     }
 
-    public void setBitmapStream(InputStream stream) {
+    public void setBitmapStream(InputStream stream) throws IOException {
         mImageOK = false;
         mOrientation = 0;
-        try {
-            if (mRegionDecoder != null) {
-                mRegionDecoder.recycle();
-                mRegionDecoder = null;
-            }
-            if (mCacheBitmap != null) {
-                mCacheBitmap.recycle();
-                mCacheBitmap = null;
-            }
-            int bufferBytes = 128 * 1024;
-            if (!stream.markSupported())
-                stream = new BufferedInputStream(stream, bufferBytes);
-            stream.mark(bufferBytes);
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(new BufferedInputStream(stream), null, options);
-            stream.reset();
-            mImageWidth = options.outWidth;
-            mImageHeight = options.outHeight;
 
-            if (mImageWidth * mImageHeight < 1024 * 1024) {
-                mCacheBitmap = BitmapFactory.decodeStream(stream);
-                mSmallImage = true;
-            } else {
-                mRegionDecoder = BitmapRegionDecoder.newInstance(stream, true);
-                mCacheRect.setEmpty();
-                mSmallImage = false;
-            }
-            mImageOK = true;
-            resetInputRect();
-            invalidate();
-        } catch (IOException ignore) {
+        if (mRegionDecoder != null) {
+            mRegionDecoder.recycle();
+            mRegionDecoder = null;
         }
+        if (mCacheBitmap != null) {
+            mCacheBitmap.recycle();
+            mCacheBitmap = null;
+        }
+        int bufferBytes = 128 * 1024;
+        if (!stream.markSupported())
+            stream = new BufferedInputStream(stream, bufferBytes);
+        stream.mark(bufferBytes);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(new BufferedInputStream(stream), null, options);
+        stream.reset();
+        mImageWidth = options.outWidth;
+        mImageHeight = options.outHeight;
+
+        if (mImageWidth * mImageHeight < 1024 * 1024) {
+            mCacheBitmap = BitmapFactory.decodeStream(stream);
+            mSmallImage = true;
+        } else {
+            mRegionDecoder = BitmapRegionDecoder.newInstance(stream, true);
+            mCacheRect.setEmpty();
+            mSmallImage = false;
+        }
+        mImageOK = true;
+        resetInputRect();
+        invalidate();
     }
 
     public void scaleImage(float scaleFactor) {

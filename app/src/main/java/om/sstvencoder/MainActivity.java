@@ -16,7 +16,9 @@ limitations under the License.
 
 package om.sstvencoder;
 
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -25,6 +27,9 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import java.io.FileNotFoundException;
 
 import om.sstvencoder.TextOverlay.LabelSettings;
 
@@ -35,14 +40,23 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
         mCropView = (CropView) findViewById(R.id.cropView);
         mEncoder = new Encoder();
         mCropView.setModeSize(mEncoder.setRobot36());
         setTitle(R.string.action_robot36);
-        if (!handleIntent(getIntent()))
-            mCropView.setBitmapStream(getResources().openRawResource(R.raw.smpte_color_bars));
+        loadImage(getIntent());
+    }
+
+    private void loadImage(Intent intent) {
+        if (!handleIntent(intent)) {
+            try {
+                mCropView.setBitmapStream(getResources().openRawResource(R.raw.smpte_color_bars));
+            } catch (Exception ex) {
+                String s = Utility.createMessage(ex) + "\n\n" + intent;
+                showErrorMessage(getString(R.string.load_img_err_title), ex.getMessage(), s);
+            }
+        }
     }
 
     @Override
@@ -52,9 +66,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private boolean handleIntent(Intent intent) {
-        String action = intent.getAction();
         String type = intent.getType();
-        if (Intent.ACTION_SEND.equals(action) && type != null && type.startsWith("image/")) {
+        if (Intent.ACTION_SEND.equals(intent.getAction()) && type != null && type.startsWith("image/")) {
             Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (uri != null) {
                 try {
@@ -62,11 +75,34 @@ public class MainActivity extends ActionBarActivity {
                     mCropView.setBitmapStream(resolver.openInputStream(uri));
                     mCropView.rotateImage(getOrientation(resolver, uri));
                     return true;
-                } catch (Exception ignore) {
+                } catch (FileNotFoundException ex) {
+                    String s = getString(R.string.load_img_err_title) + ": " + ex.getMessage();
+                    Toast.makeText(this, s, Toast.LENGTH_LONG).show();
+                } catch (Exception ex) {
+                    String s = Utility.createMessage(ex) + "\n\n" + uri + "\n\n" + intent;
+                    showErrorMessage(getString(R.string.load_img_err_title), ex.getMessage(), s);
                 }
+            } else {
+                String s = getString(R.string.load_img_err_txt_empty);
+                showErrorMessage(getString(R.string.load_img_err_title), s, s + "\n" + intent);
             }
         }
         return false;
+    }
+
+    private void showErrorMessage(final String title, final String shortText, final String longText) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setMessage(shortText);
+        builder.setNeutralButton(getString(R.string.btn_ok), null);
+        builder.setPositiveButton(getString(R.string.btn_send_email), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = Utility.createEmailIntent(getString(R.string.email_subject), longText);
+                startActivity(Intent.createChooser(intent, getString(R.string.chooser_title)));
+            }
+        });
+        builder.show();
     }
 
     public static int getOrientation(ContentResolver resolver, Uri uri) {

@@ -16,6 +16,8 @@ limitations under the License.
 
 package om.sstvencoder;
 
+import android.content.Intent;
+
 public final class Utility {
 
     public static android.graphics.Rect getEmbeddedRect(int w, int h, int iw, int ih) {
@@ -38,4 +40,20 @@ public final class Utility {
         android.os.Vibrator vibrator = (android.os.Vibrator) context.getSystemService(android.content.Context.VIBRATOR_SERVICE);
         vibrator.vibrate(duration);
     } */
+
+    public static String createMessage(Exception ex) {
+        String message = ex.getMessage() + "\n";
+        for (StackTraceElement el : ex.getStackTrace())
+            message += "\n" + el.toString();
+        return message;
+    }
+
+    public static Intent createEmailIntent(final String subject, final String text) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/email");
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"olga.rgb@googlemail.com"});
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_TEXT, text);
+        return intent;
+    }
 }

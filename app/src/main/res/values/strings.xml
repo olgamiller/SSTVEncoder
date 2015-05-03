@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">SSTV Encoder</string>
     <string name="action_send">Send</string>
     <string name="action_rotate">Rotate</string>
@@ -24,5 +23,10 @@
     <string name="action_scottie_modes">Scottie Modes</string>
     <string name="action_robot_modes">Robot Modes</string>
     <string name="action_wraase_modes">Wraase Modes</string>
-
+    <string name="load_img_err_title">Load Image Failed</string>
+    <string name="load_img_err_txt_empty">Received content is empty.</string>
+    <string name="btn_send_email">Send Email</string>
+    <string name="btn_ok">OK</string>
+    <string name="email_subject">SSTV Encoder - Bug Report</string>
+    <string name="chooser_title">Send Bug Report:</string>
 </resources>
