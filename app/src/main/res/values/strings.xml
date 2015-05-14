@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">SSTV Encoder</string>
     <string name="action_send">Send</string>
+    <string name="action_done">Done</string>
     <string name="action_rotate">Rotate</string>
     <string name="action_martin1">Martin 1</string>
     <string name="action_martin2">Martin 2</string>
