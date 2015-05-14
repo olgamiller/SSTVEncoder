@@ -21,6 +21,7 @@ import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -66,28 +67,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean handleIntent(Intent intent) {
-        String type = intent.getType();
-        if (Intent.ACTION_SEND.equals(intent.getAction()) && type != null && type.startsWith("image/")) {
-            Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (uri != null) {
-                try {
-                    ContentResolver resolver = getContentResolver();
-                    mCropView.setBitmapStream(resolver.openInputStream(uri));
-                    mCropView.rotateImage(getOrientation(resolver, uri));
-                    return true;
-                } catch (FileNotFoundException ex) {
-                    String s = getString(R.string.load_img_err_title) + ": " + ex.getMessage();
-                    Toast.makeText(this, s, Toast.LENGTH_LONG).show();
-                } catch (Exception ex) {
-                    String s = Utility.createMessage(ex) + "\n\n" + uri + "\n\n" + intent;
-                    showErrorMessage(getString(R.string.load_img_err_title), ex.getMessage(), s);
-                }
-            } else {
-                String s = getString(R.string.load_img_err_txt_empty);
-                showErrorMessage(getString(R.string.load_img_err_title), s, s + "\n" + intent);
+        if (!isIntentTypeValid(intent.getType()) || !isIntentActionValid(intent.getAction()))
+            return false;
+        Uri uri = intent.hasExtra(Intent.EXTRA_STREAM) ? (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM) : intent.getData();
+        if (uri != null) {
+            try {
+                ContentResolver resolver = getContentResolver();
+                mCropView.setBitmapStream(resolver.openInputStream(uri));
+                mCropView.rotateImage(getOrientation(resolver, uri));
+                return true;
+            } catch (FileNotFoundException ex) {
+                String s = getString(R.string.load_img_err_title) + ": \n" + ex.getMessage();
+                Toast.makeText(this, s, Toast.LENGTH_LONG).show();
+            } catch (Exception ex) {
+                String s = Utility.createMessage(ex) + "\n\n" + uri + "\n\n" + intent;
+                showErrorMessage(getString(R.string.load_img_err_title), ex.getMessage(), s);
             }
+        } else {
+            String s = getString(R.string.load_img_err_txt_unsupported);
+            showErrorMessage(getString(R.string.load_img_err_title), s, s + "\n\n" + intent);
         }
         return false;
+    }
+
+    private boolean isIntentActionValid(String action) {
+        return Intent.ACTION_SEND.equals(action) || Intent.ACTION_VIEW.equals(action);
+    }
+
+    private boolean isIntentTypeValid(String type) {
+        return type != null && type.startsWith("image/");
     }
 
     private void showErrorMessage(final String title, final String shortText, final String longText) {
@@ -105,16 +113,26 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    public static int getOrientation(ContentResolver resolver, Uri uri) {
-        int orientation = 0;
-        Cursor cursor = resolver.query(uri,
-                new String[]{MediaStore.Images.ImageColumns.ORIENTATION},
-                null, null, null);
+    private void showOrientationErrorMessage(Uri uri, Exception ex) {
+        String title = getString(R.string.load_img_orientation_err_title);
+        String longText = title + "\n\n" + Utility.createMessage(ex) + "\n\n" + uri;
+        showErrorMessage(title, ex.getMessage(), longText);
+    }
 
-        if (cursor != null) {
+    public int getOrientation(ContentResolver resolver, Uri uri) {
+        int orientation = 0;
+        try {
+            Cursor cursor = resolver.query(uri, new String[]{MediaStore.Images.ImageColumns.ORIENTATION}, null, null, null);
             if (cursor.moveToFirst())
                 orientation = cursor.getInt(0);
             cursor.close();
+        } catch (Exception ignore) {
+            try {
+                ExifInterface exif = new ExifInterface(uri.getPath());
+                orientation = Utility.convertToDegrees(exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0));
+            } catch (Exception ex) {
+                showOrientationErrorMessage(uri, ex);
+            }
         }
         return orientation;
     }

@@ -17,6 +17,7 @@ limitations under the License.
 package om.sstvencoder;
 
 import android.content.Intent;
+import android.media.ExifInterface;
 
 public final class Utility {
 
@@ -55,5 +56,17 @@ public final class Utility {
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
         intent.putExtra(Intent.EXTRA_TEXT, text);
         return intent;
+    }
+
+    public static int convertToDegrees(int exifOrientation) {
+        switch (exifOrientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return 90;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return 180;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return 270;
+        }
+        return 0;
     }
 }
