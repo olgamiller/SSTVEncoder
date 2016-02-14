@@ -31,4 +31,13 @@
     <string name="btn_ok">OK</string>
     <string name="email_subject">SSTV Encoder - Bug Report</string>
     <string name="chooser_title">Send Bug Report:</string>
+    <string name="color_title">Color</string>
+    <string name="color_black">Black</string>
+    <string name="color_red">Red</string>
+    <string name="color_white">White</string>
+    <string name="color_magenta">Magenta</string>
+    <string name="color_yellow">Yellow</string>
+    <string name="color_cyan">Cyan</string>
+    <string name="color_green">Green</string>
+    <string name="color_blue">Blue</string>
 </resources>

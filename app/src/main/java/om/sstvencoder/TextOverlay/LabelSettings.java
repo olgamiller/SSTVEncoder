@@ -16,6 +16,7 @@ limitations under the License.
 
 package om.sstvencoder.TextOverlay;
 
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -34,9 +35,12 @@ public class LabelSettings implements Parcelable {
 
     public float TextSize;
     private String mText;
+    private int mColor;
 
     public LabelSettings() {
         mText = "";
+        TextSize = 2.0f;
+        mColor = Color.BLACK;
     }
 
     public LabelSettings(Parcel src) {
@@ -46,12 +50,14 @@ public class LabelSettings implements Parcelable {
     private void readFromParcel(Parcel src) {
         setText(src.readString());
         TextSize = src.readFloat();
+        setColor(src.readInt());
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mText);
         dest.writeFloat(TextSize);
+        dest.writeInt(mColor);
     }
 
     @Override
@@ -68,5 +74,13 @@ public class LabelSettings implements Parcelable {
 
     public String getText() {
         return mText;
+    }
+
+    public void setColor(int color) {
+        mColor = color;
+    }
+
+    public int getColor() {
+        return mColor;
     }
 }
