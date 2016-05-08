@@ -176,15 +176,8 @@ public class CropView extends ImageView {
     public void setBitmapStream(InputStream stream) throws IOException {
         mImageOK = false;
         mOrientation = 0;
+        recycle();
 
-        if (mRegionDecoder != null) {
-            mRegionDecoder.recycle();
-            mRegionDecoder = null;
-        }
-        if (mCacheBitmap != null) {
-            mCacheBitmap.recycle();
-            mCacheBitmap = null;
-        }
         int bufferBytes = 128 * 1024;
         if (!stream.markSupported())
             stream = new BufferedInputStream(stream, bufferBytes);
@@ -204,9 +197,26 @@ public class CropView extends ImageView {
             mCacheRect.setEmpty();
             mSmallImage = false;
         }
+
+        if (mCacheBitmap == null && mRegionDecoder == null) {
+            String size = options.outWidth + "x" + options.outHeight;
+            throw new IOException("Stream could not be decoded. Image size: " + size);
+        }
+
         mImageOK = true;
         resetInputRect();
         invalidate();
+    }
+
+    private void recycle() {
+        if (mRegionDecoder != null) {
+            mRegionDecoder.recycle();
+            mRegionDecoder = null;
+        }
+        if (mCacheBitmap != null) {
+            mCacheBitmap.recycle();
+            mCacheBitmap = null;
+        }
     }
 
     public void scaleImage(float scaleFactor) {
