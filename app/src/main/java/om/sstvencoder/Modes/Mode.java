@@ -77,8 +77,10 @@ public abstract class Mode {
         }
     }
 
+    // Note that also Bitmap will be recycled here
     public void finish() {
         destroyAudio();
+        destroyBitmap();
     }
 
     protected abstract void writeEncodedLine();
@@ -169,5 +171,12 @@ public abstract class Mode {
         mAudioTrack.stop();
         mAudioTrack.release();
         mAudioBuffer = null;
+    }
+
+    private void destroyBitmap() {
+        if (mBitmap != null && !mBitmap.isRecycled()) {
+            mBitmap.recycle();
+            mBitmap = null;
+        }
     }
 }
