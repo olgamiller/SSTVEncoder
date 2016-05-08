@@ -164,6 +164,7 @@ public class CropView extends ImageView {
         mOrientation %= 360;
         if (orientation == 90 || orientation == 270) {
             int tmp = mImageWidth;
+            //noinspection SuspiciousNameCombination
             mImageWidth = mImageHeight;
             mImageHeight = tmp;
         }
@@ -359,7 +360,9 @@ public class CropView extends ImageView {
             int tmp = w;
             w = h;
             h = tmp;
+            //noinspection SuspiciousNameCombination
             mImageDrawRect.set(mImageDrawRect.top, h - mImageDrawRect.left, mImageDrawRect.bottom, h - mImageDrawRect.right);
+            //noinspection SuspiciousNameCombination
             mCanvasDrawRect.set(mCanvasDrawRect.top, -mCanvasDrawRect.right, mCanvasDrawRect.bottom, -mCanvasDrawRect.left);
         }
         mImageDrawRect.sort();
