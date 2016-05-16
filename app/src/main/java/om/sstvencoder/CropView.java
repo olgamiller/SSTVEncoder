@@ -179,7 +179,7 @@ public class CropView extends ImageView {
         mOrientation = 0;
         recycle();
 
-        int bufferBytes = 128 * 1024;
+        int bufferBytes = 256 * 1024;
         if (!stream.markSupported())
             stream = new BufferedInputStream(stream, bufferBytes);
         stream.mark(bufferBytes);
