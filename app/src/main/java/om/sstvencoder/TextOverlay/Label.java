@@ -201,14 +201,14 @@ class Label {
     public LabelSettings getSettings() {
         LabelSettings settings = new LabelSettings();
         settings.setText(mText);
-        settings.TextSize = mTextSize;
+        settings.setTextSize(mTextSize);
         settings.setColor(mColor);
         return settings;
     }
 
     public void loadSettings(LabelSettings settings) {
         mText = settings.getText();
-        mTextSize = settings.TextSize;
+        mTextSize = settings.getTextSize();
         mColor = settings.getColor();
         setTextSizeFactor();
         adjust();

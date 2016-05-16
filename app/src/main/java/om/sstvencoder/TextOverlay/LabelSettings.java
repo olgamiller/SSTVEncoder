@@ -33,13 +33,13 @@ public class LabelSettings implements Parcelable {
         }
     };
 
-    public float TextSize;
+    private float mTextSize;
     private String mText;
     private int mColor;
 
     public LabelSettings() {
         mText = "";
-        TextSize = 2.0f;
+        mTextSize = 2.0f;
         mColor = Color.BLACK;
     }
 
@@ -49,14 +49,14 @@ public class LabelSettings implements Parcelable {
 
     private void readFromParcel(Parcel src) {
         setText(src.readString());
-        TextSize = src.readFloat();
+        mTextSize = src.readFloat();
         setColor(src.readInt());
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mText);
-        dest.writeFloat(TextSize);
+        dest.writeFloat(mTextSize);
         dest.writeInt(mColor);
     }
 
@@ -82,5 +82,13 @@ public class LabelSettings implements Parcelable {
 
     public int getColor() {
         return mColor;
+    }
+
+    public void setTextSize(float textSize) {
+        mTextSize = textSize;
+    }
+
+    public float getTextSize() {
+        return mTextSize;
     }
 }

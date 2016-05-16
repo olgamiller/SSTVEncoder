@@ -22,15 +22,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import om.sstvencoder.TextOverlay.LabelSettings;
 
-public class EditTextActivity extends AppCompatActivity {
+public class EditTextActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     public static final int REQUEST_CODE = 101;
     public static final String SETTINGS_ID = "EditLabel";
     private EditText mEditText;
     private ColorView mColorView;
+    private float mTextSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +56,14 @@ public class EditTextActivity extends AppCompatActivity {
         super.onStart();
         LabelSettings settings = getIntent().getParcelableExtra(SETTINGS_ID);
         mColorView.setColor(settings.getColor());
+
+        mTextSize = settings.getTextSize();
+        Spinner editTextSize = (Spinner) findViewById(R.id.edit_text_size);
+        editTextSize.setOnItemSelectedListener(this);
+        String[] textSizeList = new String[]{"Small", "Normal", "Large", "Huge"};
+        editTextSize.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, textSizeList));
+        editTextSize.setSelection(textSizeToPosition(mTextSize));
+
         mEditText.setText(settings.getText());
         mEditText.setTextColor(mColorView.getColor());
     }
@@ -77,8 +89,29 @@ public class EditTextActivity extends AppCompatActivity {
         LabelSettings settings = new LabelSettings();
         settings.setText(mEditText.getText().toString());
         settings.setColor(mColorView.getColor());
+        settings.setTextSize(mTextSize);
         intent.putExtra(SETTINGS_ID, settings);
         setResult(RESULT_OK, intent);
         finish();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        mTextSize = positionToTextSize(position);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+    }
+
+    private int textSizeToPosition(float textSize) {
+        int position = (int) (textSize - 1f);
+        if (0 <= position && position <= 3)
+            return position;
+        return 1;
+    }
+
+    private float positionToTextSize(int position) {
+        return position + 1f;
     }
 }
