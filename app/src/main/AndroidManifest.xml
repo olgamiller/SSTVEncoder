@@ -28,7 +28,8 @@
         </activity>
         <activity
             android:name=".EditTextActivity"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="stateVisible|adjustPan" />
     </application>
 
 </manifest>

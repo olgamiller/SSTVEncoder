@@ -7,43 +7,4 @@
         android:icon="@drawable/sym_keyboard_done_lxx_dark"
         android:title="@string/action_done"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/color"
-        android:title="@string/color_title"
-        app:showAsAction="ifRoom">
-        <menu>
-            <item
-                android:id="@+id/color_black"
-                android:title="@string/color_black"
-                android:icon="@drawable/menu_color_black" />
-            <item
-                android:id="@+id/color_red"
-                android:icon="@drawable/menu_color_red"
-                android:title="@string/color_red"/>
-            <item
-                android:id="@+id/color_white"
-                android:icon="@drawable/menu_color_white"
-                android:title="@string/color_white"/>
-            <item
-                android:id="@+id/color_magenta"
-                android:icon="@drawable/menu_color_magenta"
-                android:title="@string/color_magenta"/>
-            <item
-                android:id="@+id/color_yellow"
-                android:icon="@drawable/menu_color_yellow"
-                android:title="@string/color_yellow"/>
-            <item
-                android:id="@+id/color_cyan"
-                android:icon="@drawable/menu_color_cyan"
-                android:title="@string/color_cyan"/>
-            <item
-                android:id="@+id/color_green"
-                android:icon="@drawable/menu_color_green"
-                android:title="@string/color_green"/>
-            <item
-                android:id="@+id/color_blue"
-                android:icon="@drawable/menu_color_blue"
-                android:title="@string/color_blue"/>
-        </menu>
-    </item>
 </menu>
