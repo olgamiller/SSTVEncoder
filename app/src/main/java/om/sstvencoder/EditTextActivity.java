@@ -42,12 +42,6 @@ public class EditTextActivity extends AppCompatActivity implements AdapterView.O
         setContentView(R.layout.activity_edit_text);
         mEditText = (EditText) findViewById(R.id.edit_text);
         mColorView = (ColorView) findViewById(R.id.edit_color);
-        mColorView.setOnChangeListener(new ColorView.OnChangeListener() {
-            @Override
-            public void onChange(View v, int color) {
-                mEditText.setTextColor(color);
-            }
-        });
     }
 
     // Now ColorView should have width and height unequal 0.
@@ -65,7 +59,6 @@ public class EditTextActivity extends AppCompatActivity implements AdapterView.O
         editTextSize.setSelection(textSizeToPosition(mTextSize));
 
         mEditText.setText(settings.getText());
-        mEditText.setTextColor(mColorView.getColor());
     }
 
     @Override
