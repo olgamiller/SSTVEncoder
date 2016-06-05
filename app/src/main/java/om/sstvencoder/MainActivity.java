@@ -16,16 +16,22 @@ limitations under the License.
 
 package om.sstvencoder;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.system.ErrnoException;
+import android.system.OsConstants;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -77,6 +83,12 @@ public class MainActivity extends AppCompatActivity {
                 mCropView.rotateImage(getOrientation(resolver, uri));
                 return true;
             } catch (FileNotFoundException ex) {
+                if (ex.getCause() instanceof ErrnoException) {
+                    if (((ErrnoException) ex.getCause()).errno == OsConstants.EACCES) {
+                        requestPermissions();
+                        return false;
+                    }
+                }
                 String s = getString(R.string.load_img_err_title) + ": \n" + ex.getMessage();
                 Toast.makeText(this, s, Toast.LENGTH_LONG).show();
             } catch (Exception ex) {
@@ -96,6 +108,11 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isIntentTypeValid(String type) {
         return type != null && type.startsWith("image/");
+    }
+
+    private void requestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
     }
 
     private void showErrorMessage(final String title, final String shortText, final String longText) {
