@@ -17,6 +17,7 @@ limitations under the License.
 package om.sstvencoder;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
@@ -25,6 +26,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -110,7 +112,11 @@ public class MainActivity extends AppCompatActivity {
         return type != null && type.startsWith("image/");
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void requestPermissions() {
+        if (Build.VERSION_CODES.JELLY_BEAN > Build.VERSION.SDK_INT)
+            return;
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
     }
