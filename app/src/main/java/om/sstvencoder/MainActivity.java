@@ -129,7 +129,9 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton(getString(R.string.btn_send_email), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent intent = Utility.createEmailIntent(getString(R.string.email_subject), longText);
+                String device = Build.MANUFACTURER + ", " + Build.BRAND + ", " + Build.MODEL + ", " + Build.VERSION.RELEASE;
+                String text = longText + "\n\n" + BuildConfig.VERSION_NAME + ", " + device;
+                Intent intent = Utility.createEmailIntent(getString(R.string.email_subject), text);
                 startActivity(Intent.createChooser(intent, getString(R.string.chooser_title)));
             }
         });
